@@ -1,7 +1,7 @@
 import React from "react";
-import AppLayout from "./components/AppLayout";
+import AppLayout from "../components/AppLayout";
 
-const index = () => {
+const Home = () => {
   return (
     <AppLayout>
       <div>Hello, Next!</div>
@@ -9,4 +9,4 @@ const index = () => {
   );
 };
 
-export default index;
+export default Home;
