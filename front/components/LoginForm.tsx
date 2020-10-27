@@ -2,12 +2,12 @@ import React, { useCallback, useState } from "react";
 import Link from "next/link";
 import { Form, Input, Button } from "antd";
 import styled from "styled-components";
+import { useDispatch, useSelector } from "react-redux";
+import { loginAction, RootState } from "../reducers";
 
-interface Props {
-  setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-const LoginForm = ({ setIsLoggedIn }: Props) => {
+const LoginForm = () => {
+  const dispatch = useDispatch();
+  const { isLoggedIn } = useSelector(({ user }: RootState) => user);
   const [id, setId] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const onChangeId = useCallback((e) => {
@@ -21,7 +21,12 @@ const LoginForm = ({ setIsLoggedIn }: Props) => {
   const onSubmitForm = useCallback(
     (e) => {
       console.log(id, password);
-      setIsLoggedIn(true);
+      dispatch(
+        loginAction({
+          id,
+          password,
+        })
+      );
     },
     [id, password]
   );

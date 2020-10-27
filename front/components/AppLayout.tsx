@@ -4,6 +4,8 @@ import styled from "styled-components";
 import { Menu, Input, Row, Col } from "antd";
 import LoginForm from "./LoginForm";
 import UserProfile from "./UserProfile";
+import { useSelector } from "react-redux";
+import { RootState } from "../reducers";
 
 interface Props {
   children: ReactChild[] | ReactChild;
@@ -14,7 +16,7 @@ const SearchInput = styled(Input.Search)`
 `;
 
 const AppLayout = ({ children }: Props) => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const { isLoggedIn } = useSelector(({ user }: RootState) => user);
   return (
     <div>
       <Menu mode="horizontal">
@@ -40,11 +42,7 @@ const AppLayout = ({ children }: Props) => {
       {/* xs(모바일) => sm(태블릿) => md(pc) ,  gutter : column 사이의 간격*/}
       <Row gutter={8}>
         <Col xs={24} md={6}>
-          {isLoggedIn ? (
-            <UserProfile setIsLoggedIn={setIsLoggedIn} />
-          ) : (
-            <LoginForm setIsLoggedIn={setIsLoggedIn} />
-          )}
+          {isLoggedIn ? <UserProfile /> : <LoginForm />}
         </Col>
         <Col xs={24} md={12}>
           {children}
