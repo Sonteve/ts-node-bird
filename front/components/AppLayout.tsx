@@ -6,7 +6,7 @@ import LoginForm from "./LoginForm";
 import UserProfile from "./UserProfile";
 
 interface Props {
-  children: ReactChild;
+  children: ReactChild[] | ReactChild;
 }
 
 const SearchInput = styled(Input.Search)`
