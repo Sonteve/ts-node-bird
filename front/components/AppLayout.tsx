@@ -9,6 +9,10 @@ interface Props {
   children: ReactChild;
 }
 
+const SearchInput = styled(Input.Search)`
+  vertical-align: middle;
+`;
+
 const AppLayout = ({ children }: Props) => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   return (
@@ -25,7 +29,7 @@ const AppLayout = ({ children }: Props) => {
           </Link>
         </Menu.Item>
         <Menu.Item>
-          <Input.Search enterButton style={{ verticalAlign: "middle" }} />
+          <SearchInput enterButton style={{ verticalAlign: "middle" }} />
         </Menu.Item>
         <Menu.Item>
           <Link href="/signup">
@@ -36,7 +40,11 @@ const AppLayout = ({ children }: Props) => {
       {/* xs(모바일) => sm(태블릿) => md(pc) ,  gutter : column 사이의 간격*/}
       <Row gutter={8}>
         <Col xs={24} md={6}>
-          {isLoggedIn ? <UserProfile /> : <LoginForm />}
+          {isLoggedIn ? (
+            <UserProfile setIsLoggedIn={setIsLoggedIn} />
+          ) : (
+            <LoginForm setIsLoggedIn={setIsLoggedIn} />
+          )}
         </Col>
         <Col xs={24} md={12}>
           {children}

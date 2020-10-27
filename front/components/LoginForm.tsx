@@ -1,15 +1,32 @@
 import React, { useCallback, useState } from "react";
 import Link from "next/link";
 import { Form, Input, Button } from "antd";
+import styled from "styled-components";
 
-const LoginForm = () => {
+interface Props {
+  setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const LoginForm = ({ setIsLoggedIn }: Props) => {
   const [id, setId] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const onChangeId = useCallback(() => {}, []);
+  const onChangeId = useCallback((e) => {
+    setId(e.target.value);
+  }, []);
 
-  const onChangePassword = useCallback(() => {}, []);
+  const onChangePassword = useCallback((e) => {
+    setPassword(e.target.value);
+  }, []);
+
+  const onSubmitForm = useCallback(
+    (e) => {
+      console.log(id, password);
+      setIsLoggedIn(true);
+    },
+    [id, password]
+  );
   return (
-    <Form>
+    <FormBlock onFinish={onSubmitForm}>
       <div>
         <label htmlFor="user-id">아이디</label>
         <br />
@@ -21,12 +38,12 @@ const LoginForm = () => {
         <Input
           name="user-password"
           type="password"
-          value={id}
+          value={password}
           onChange={onChangePassword}
           required
         />
       </div>
-      <div>
+      <ButtonBlock>
         <Button type="primary" htmlType="submit" loading={false}>
           로그인
         </Button>
@@ -35,9 +52,17 @@ const LoginForm = () => {
             <Button>회원가입</Button>
           </a>
         </Link>
-      </div>
-    </Form>
+      </ButtonBlock>
+    </FormBlock>
   );
 };
 
 export default LoginForm;
+
+const ButtonBlock = styled.div`
+  margin-top: 10px;
+`;
+
+const FormBlock = styled(Form)`
+  padding: 10px;
+`;
