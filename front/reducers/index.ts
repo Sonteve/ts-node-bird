@@ -1,6 +1,5 @@
 import { HYDRATE } from "next-redux-wrapper";
 import { AnyAction, combineReducers } from "redux";
-import { Action } from "typesafe-actions";
 import post, { PostState } from "./post";
 import user, { UserState } from "./user";
 
