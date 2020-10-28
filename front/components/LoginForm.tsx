@@ -3,7 +3,8 @@ import Link from "next/link";
 import { Form, Input, Button } from "antd";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { loginAction, RootState } from "../reducers";
+import { RootState } from "../reducers";
+import { loginAction } from "../reducers/user";
 
 const LoginForm = () => {
   const dispatch = useDispatch();
