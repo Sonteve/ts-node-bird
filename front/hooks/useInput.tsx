@@ -7,12 +7,15 @@ const useInput = (
 ): [
   string,
   React.Dispatch<React.SetStateAction<string>>,
-  (e: ChangeEvent<HTMLInputElement>) => void
+  (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
 ] => {
   const [input, setInput] = useState(initialValue);
-  const onChangeInput = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    setInput(e.target.value);
-  }, []);
+  const onChangeInput = useCallback(
+    (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setInput(e.target.value);
+    },
+    []
+  );
   return [input, setInput, onChangeInput];
 };
 

@@ -1,12 +1,15 @@
 import { HYDRATE } from "next-redux-wrapper";
 import { AnyAction, combineReducers } from "redux";
+import { Action } from "typesafe-actions";
+import post, { PostState } from "./post";
 import user, { UserState } from "./user";
 
 type State = {
   user: UserState;
+  post: PostState;
 };
 
-const rootReducer = (state: State | undefined, action: AnyAction) => {
+const rootReducer = (state: State | undefined, action: AnyAction): State => {
   switch (action.type) {
     case HYDRATE:
       console.log(action.payload);
@@ -14,6 +17,7 @@ const rootReducer = (state: State | undefined, action: AnyAction) => {
     default: {
       const combineReducer = combineReducers({
         user,
+        post,
       });
       return combineReducer(state, action);
     }

@@ -11,14 +11,14 @@ type UserAction = ActionType<typeof loginAction | typeof logoutAction>;
 
 export interface UserState {
   isLoggedIn: boolean;
-  user: LoginParam | null;
+  me: LoginParam | null;
   signUpData: null;
   loginData: null;
 }
 
 const initialState: UserState = {
   isLoggedIn: false,
-  user: null,
+  me: null,
   signUpData: null,
   loginData: null,
 };
@@ -26,11 +26,13 @@ const initialState: UserState = {
 const user = createReducer<UserState, UserAction>(initialState, {
   [LOG_IN]: (state, action) =>
     produce(state, (draft) => {
-      draft.user = action.payload;
+      draft.me = action.payload;
+      draft.isLoggedIn = true;
     }),
   [LOG_OUT]: (state) =>
     produce(state, (draft) => {
-      draft.user = null;
+      draft.me = null;
+      draft.isLoggedIn = false;
     }),
 });
 

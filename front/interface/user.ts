@@ -1,4 +1,4 @@
 export interface LoginParam {
-  id: string;
+  id: number;
   password: string;
 }

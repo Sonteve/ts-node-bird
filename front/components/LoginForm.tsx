@@ -24,7 +24,7 @@ const LoginForm = () => {
       console.log(id, password);
       dispatch(
         loginAction({
-          id,
+          id: parseInt(id),
           password,
         })
       );

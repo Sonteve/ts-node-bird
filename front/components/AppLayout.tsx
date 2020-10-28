@@ -1,4 +1,4 @@
-import React, { ReactChild, useState } from "react";
+import React, { ReactChild, ReactElement, ReactNode, useState } from "react";
 import Link from "next/link";
 import styled from "styled-components";
 import { Menu, Input, Row, Col } from "antd";
@@ -8,7 +8,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../reducers";
 
 interface Props {
-  children: ReactChild[] | ReactChild;
+  children: ReactNode;
 }
 
 const SearchInput = styled(Input.Search)`
