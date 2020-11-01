@@ -8,11 +8,11 @@ import { loginAction } from "../reducers/user";
 
 const LoginForm = () => {
   const dispatch = useDispatch();
-  const { isLoggedIn } = useSelector(({ user }: RootState) => user);
-  const [id, setId] = useState<string>("");
+  const { me, logInLoading } = useSelector(({ user }: RootState) => user);
+  const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const onChangeId = useCallback((e) => {
-    setId(e.target.value);
+  const onChangeEmail = useCallback((e) => {
+    setEmail(e.target.value);
   }, []);
 
   const onChangePassword = useCallback((e) => {
@@ -21,22 +21,28 @@ const LoginForm = () => {
 
   const onSubmitForm = useCallback(
     (e) => {
-      console.log(id, password);
+      console.log(email, password);
       dispatch(
-        loginAction({
-          id: parseInt(id),
+        loginAction.request({
+          email,
           password,
         })
       );
     },
-    [id, password]
+    [email, password]
   );
   return (
     <FormBlock onFinish={onSubmitForm}>
       <div>
-        <label htmlFor="user-id">아이디</label>
+        <label htmlFor="user-email">이메일</label>
         <br />
-        <Input name="user-id" value={id} onChange={onChangeId} required />
+        <Input
+          type="email"
+          name="user-email"
+          value={email}
+          onChange={onChangeEmail}
+          required
+        />
       </div>
       <div>
         <label htmlFor="user-password">비밀번호</label>
@@ -50,7 +56,7 @@ const LoginForm = () => {
         />
       </div>
       <ButtonBlock>
-        <Button type="primary" htmlType="submit" loading={false}>
+        <Button type="primary" htmlType="submit" loading={logInLoading}>
           로그인
         </Button>
         <Link href="/signup">

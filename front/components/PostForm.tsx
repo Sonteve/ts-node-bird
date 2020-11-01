@@ -8,12 +8,18 @@ import { addPost } from "../reducers/post";
 const PostForm = () => {
   const dispatch = useDispatch();
   const { imagePaths } = useSelector(({ post }: RootState) => post);
+  const { me } = useSelector(({ user }: RootState) => user);
+
   const [text, setText, onChangeText] = useInput("");
   const imageInput = useRef<HTMLInputElement>(null);
+  console.log(text);
   const onSubmit = useCallback(() => {
-    dispatch(addPost());
-    setText("");
-  }, []);
+    if (!me) return;
+    const { id, nickname } = me;
+    console.log("text", text);
+    dispatch(addPost.request({ id, nickname, content: text }));
+    /* setText(""); */
+  }, [me, text]);
 
   const onUploadImage = useCallback(() => {
     imageInput.current?.click();

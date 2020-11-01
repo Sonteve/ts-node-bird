@@ -8,13 +8,18 @@ export interface Post {
   Images: {
     src: string;
   }[];
-  Comments:
-    | {
-        User: {
-          nickname: string;
-        };
-        content: string;
-      }[]
-    | null;
+  Comments: {
+    User: {
+      id: number;
+      nickname: string;
+    };
+    content: string;
+  }[];
   createdAt: string;
+}
+
+export interface PostParam {
+  id: number;
+  nickname: string;
+  content: string;
 }

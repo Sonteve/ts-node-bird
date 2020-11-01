@@ -1,10 +1,21 @@
+import { AxiosError } from "axios";
 import produce from "immer";
-import { ActionType, createAction, createReducer } from "typesafe-actions";
-import { Post } from "../interface/post";
+import {
+  ActionType,
+  createAction,
+  createAsyncAction,
+  createReducer,
+} from "typesafe-actions";
+import { Post, PostParam } from "../interface/post";
 export interface PostState {
   mainPosts: Post[]; // 메인에 보여질 포스트내용
   imagePaths: string[]; // 미리보기 이미지 경로
-  postAdded: boolean; // 게시글 추가 완료됐을 때
+  addPostLoading: boolean;
+  addPostDone: boolean;
+  addPostError: AxiosError | null;
+  addCommentLoading: boolean;
+  addCommentDone: boolean;
+  addCommentError: AxiosError | null;
 }
 
 // 초기 상태
@@ -34,12 +45,14 @@ const initialState: PostState = {
       Comments: [
         {
           User: {
+            id: 22,
             nickname: "nero",
           },
           content: "우와~ 또하세요~?",
         },
         {
           User: {
+            id: 23,
             nickname: "toth",
           },
           content: "jum is dorok",
@@ -49,30 +62,43 @@ const initialState: PostState = {
     },
   ],
   imagePaths: [],
-  postAdded: false,
+  addPostLoading: false,
+  addPostDone: false,
+  addPostError: null,
+  addCommentLoading: false,
+  addCommentDone: false,
+  addCommentError: null,
 };
+let tempId = 2;
 
-const dummyPost: Post = {
-  id: 2,
-  User: {
-    id: 1,
-    nickname: "손티브",
-  },
-  content: "더미데이터 입니다.",
-  Images: [],
-  Comments: [],
-  createdAt: "2020-10-28",
-};
-
-const ADD_POST = "ADD_POST";
-export const addPost = createAction(ADD_POST)();
+export const ADD_POST_REQUEST = "ADD_POST_REQUEST";
+export const ADD_POST_SUCCESS = "ADD_POST_SUCCESS";
+export const ADD_POST_FAILURE = "ADD_POST_FAILURE";
+export const addPost = createAsyncAction(
+  ADD_POST_REQUEST,
+  ADD_POST_SUCCESS,
+  ADD_POST_FAILURE
+)<PostParam, Post, AxiosError>();
 
 type PostAction = ActionType<typeof addPost>;
 
 const post = createReducer<PostState, PostAction>(initialState, {
-  [ADD_POST]: (state) =>
+  [ADD_POST_REQUEST]: (state) =>
     produce(state, (draft) => {
-      draft.mainPosts.unshift(dummyPost);
+      draft.addPostDone = false;
+      draft.addPostLoading = true;
+    }),
+  [ADD_POST_SUCCESS]: (state, action) =>
+    produce(state, (draft) => {
+      draft.addPostLoading = false;
+      draft.addPostDone = true;
+      draft.mainPosts.unshift(action.payload);
+      tempId++;
+    }),
+  [ADD_POST_FAILURE]: (state, action) =>
+    produce(state, (draft) => {
+      draft.addPostLoading = false;
+      draft.addPostError = action.payload;
     }),
 });
 

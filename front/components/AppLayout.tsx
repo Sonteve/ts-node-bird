@@ -1,6 +1,6 @@
 import React, { ReactChild, ReactElement, ReactNode, useState } from "react";
 import Link from "next/link";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { Menu, Input, Row, Col } from "antd";
 import LoginForm from "./LoginForm";
 import UserProfile from "./UserProfile";
@@ -11,14 +11,30 @@ interface Props {
   children: ReactNode;
 }
 
+const GLobal = createGlobalStyle`
+  .ant-row {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+  }  
+
+  .ant-col:first-child {
+    padding-left: 0 !important;
+  }
+
+  .ant-col:last-child {
+    padding-right: 0 !important;
+  }
+`;
+
 const SearchInput = styled(Input.Search)`
   vertical-align: middle;
 `;
 
 const AppLayout = ({ children }: Props) => {
-  const { isLoggedIn } = useSelector(({ user }: RootState) => user);
+  const { me } = useSelector(({ user }: RootState) => user);
   return (
     <div>
+      <GLobal />
       <Menu mode="horizontal">
         <Menu.Item>
           <Link href="/">
@@ -42,7 +58,7 @@ const AppLayout = ({ children }: Props) => {
       {/* xs(모바일) => sm(태블릿) => md(pc) ,  gutter : column 사이의 간격*/}
       <Row gutter={8}>
         <Col xs={24} md={6}>
-          {isLoggedIn ? <UserProfile /> : <LoginForm />}
+          {me ? <UserProfile /> : <LoginForm />}
         </Col>
         <Col xs={24} md={12}>
           {children}

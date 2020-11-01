@@ -5,7 +5,7 @@ import {
   MessageOutlined,
   RetweetOutlined,
 } from "@ant-design/icons";
-import { Button, Card, Popover } from "antd";
+import { Button, Card, Popover, List, Comment } from "antd";
 import Avatar from "antd/lib/avatar/avatar";
 import React, { useCallback, useState } from "react";
 import { useSelector } from "react-redux";
@@ -13,6 +13,7 @@ import { Post } from "../interface/post";
 import { RootState } from "../reducers";
 import PostImages from "../components/PostImages";
 import CommentForm from "./CommentForm";
+import PostCardContent from "./PostCardContent";
 
 interface Props {
   post: Post;
@@ -66,11 +67,29 @@ const PostCard = ({ post }: Props) => {
         <Card.Meta
           avatar={<Avatar>{post.User.nickname[0]}</Avatar>}
           title={post.User.nickname}
-          description={post.content}
+          description={<PostCardContent postData={post.content} />}
         />
         <Button></Button>
       </Card>
-      {commentFormOpened && <CommentForm comments={post.Comments} />}
+      {commentFormOpened && (
+        <div>
+          <CommentForm post={post} />
+          <List
+            header={`${post.Comments.length}개의 댓글`}
+            itemLayout="horizontal"
+            dataSource={post.Comments}
+            renderItem={(item) => (
+              <li>
+                <Comment
+                  author={item.User.nickname}
+                  avatar={<Avatar>{item.User.nickname[0]}</Avatar>}
+                  content={item.content}
+                />
+              </li>
+            )}
+          />
+        </div>
+      )}
       {/* <CommentForm />
       <Comments /> */}
     </div>

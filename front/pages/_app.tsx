@@ -2,6 +2,7 @@ import React, { ElementType } from "react";
 import wrapper from "../store/configureStore";
 import Head from "next/head";
 import "antd/dist/antd.css";
+import withReduxSaga from "next-redux-saga";
 
 interface Props {
   Component: ElementType;
@@ -20,4 +21,4 @@ const App = ({ Component }: Props) => {
   );
 };
 
-export default wrapper.withRedux(App);
+export default wrapper.withRedux(withReduxSaga(App));
