@@ -14,6 +14,10 @@ import {
   SIGN_UP_SUCCESS,
   SIGN_UP_FAILURE,
   SIGN_UP_REQUEST,
+  CHANGE_NICKNAME_REQUEST,
+  changeNicknameAction,
+  CHANGE_NICKNAME_SUCCESS,
+  CHANGE_NICKNAME_FAILURE,
 } from "../reducers/user";
 import { ActionType } from "typesafe-actions";
 
@@ -38,7 +42,7 @@ function* loginSaga(action: ReturnType<typeof loginAction.request>) {
         { nickname: "바보" },
         { nickname: "손현준" },
       ],
-      Posts: [],
+      Posts: [{ id: 1 }],
     };
     yield put({
       type: LOG_IN_SUCCESS,
@@ -93,8 +97,32 @@ function* signUpSaga(action: ActionType<typeof signupAction.request>) {
   }
 }
 
+/* function loginAPI(data: LoginParam) {
+  return axios.get("/api/login");
+} */
+
+function* changeNicknameSaga(
+  action: ActionType<typeof changeNicknameAction.request>
+) {
+  try {
+    /* const result = yield call(loginAPI, action.payload); */
+    yield delay(1000);
+    yield put({
+      type: CHANGE_NICKNAME_SUCCESS,
+      payload: action.payload,
+    });
+  } catch (err) {
+    console.error(err.response.data);
+    yield put({
+      type: CHANGE_NICKNAME_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
 export default function* userSaga() {
   yield takeLatest(LOG_IN_REQUEST, loginSaga);
   yield takeLatest(LOG_OUT_REQUEST, logoutSaga);
   yield takeLatest(SIGN_UP_REQUEST, signUpSaga);
+  yield takeLatest(CHANGE_NICKNAME_REQUEST, changeNicknameSaga);
 }

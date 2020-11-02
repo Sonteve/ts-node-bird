@@ -1,15 +1,41 @@
 import { Button, Form, Input } from "antd";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import useInput from "../hooks/useInput";
 import { Post } from "../interface/post";
+import { RootState } from "../reducers";
+import { addComment } from "../reducers/post";
 
 interface Props {
   post: Post;
 }
 
 const CommentForm = ({ post }: Props) => {
-  const [commentText, setCommentText, onChangeCommentText] = useInput("");
-  const onSubmitComment = useCallback(() => {}, []);
+  const { me } = useSelector(({ user }: RootState) => user);
+  const { addCommentDone, addCommentLoading } = useSelector(
+    ({ post }: RootState) => post
+  );
+  const dispatch = useDispatch();
+  const [commentText, onChangeCommentText, setCommentText] = useInput("");
+  const onSubmitComment = useCallback(() => {
+    console.log("test");
+    if (!me) return;
+    dispatch(
+      addComment.request({
+        content: commentText,
+        postId: post.id,
+        userId: me.id,
+        nickname: me.nickname,
+      })
+    );
+  }, [commentText, me]);
+
+  useEffect(() => {
+    if (addCommentDone) {
+      setCommentText("");
+    }
+  }, [addCommentDone]);
+
   return (
     <Form
       onFinish={onSubmitComment}
@@ -24,7 +50,8 @@ const CommentForm = ({ post }: Props) => {
       <Button
         type="primary"
         htmlType="submit"
-        style={{ position: "absolute", right: 0, bottom: -40 }}
+        loading={addCommentLoading}
+        style={{ position: "absolute", right: 0, bottom: -40, zIndex: 1 }}
       >
         짹짹
       </Button>

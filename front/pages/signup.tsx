@@ -6,11 +6,16 @@ import useInput from "../hooks/useInput";
 import styled from "styled-components";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import Password from "antd/lib/input/Password";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../reducers";
+import { signupAction } from "../reducers/user";
 
 const Signup = () => {
-  const [id, setId, onChangeId] = useInput("");
-  const [nickname, setNickname, onChangeNickname] = useInput("");
-  const [password, setPassword, onChangePassword] = useInput("");
+  const dispatch = useDispatch();
+  const { signUpLoading } = useSelector(({ user }: RootState) => user);
+  const [email, onChangeEmail, setEmail] = useInput("");
+  const [nickname, onChangeNickname, setNickname] = useInput("");
+  const [password, onChangePassword, setPassword] = useInput("");
 
   const [passwordCheck, setPasswordCheck] = useState<string>("");
   const [passwordError, setPasswordError] = useState<boolean>(false);
@@ -39,8 +44,16 @@ const Signup = () => {
     if (!term) {
       return setTermError(true);
     }
-    console.log(id, nickname, password);
-  }, [passwordCheck, passwordCheck, term]);
+
+    dispatch(
+      signupAction.request({
+        email,
+        nickname,
+        password,
+      })
+    );
+    console.log(email, nickname, password);
+  }, [email, passwordCheck, passwordCheck, term]);
   return (
     <>
       <Head>
@@ -49,8 +62,14 @@ const Signup = () => {
       <AppLayout>
         <Form onFinish={onSubmit}>
           <div>
-            <label htmlFor="user-id">아이디</label>
-            <Input name="user-id" value={id} required onChange={onChangeId} />
+            <label htmlFor="user-email">이메일</label>
+            <Input
+              type="email"
+              name="user-email"
+              value={email}
+              required
+              onChange={onChangeEmail}
+            />
           </div>
           <div>
             <label htmlFor="user-nickname">닉네임</label>

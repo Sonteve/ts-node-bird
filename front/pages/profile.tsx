@@ -8,22 +8,7 @@ import { RootState } from "../reducers";
 
 const Profile = () => {
   const { me } = useSelector(({ user }: RootState) => user);
-  /* const followingList = useMemo(
-    () => [
-      { nickname: "슬리프" },
-      { nickname: "엄달" },
-      { nickname: "아나테마" },
-    ],
-    []
-  );
-  const followerList = useMemo(
-    () => [
-      { nickname: "손티브" },
-      { nickname: "바보" },
-      { nickname: "손현준" },
-    ],
-    []
-  ); */
+
   return (
     <>
       <Head>

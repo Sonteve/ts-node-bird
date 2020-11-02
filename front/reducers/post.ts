@@ -6,7 +6,15 @@ import {
   createAsyncAction,
   createReducer,
 } from "typesafe-actions";
-import { Post, PostParam } from "../interface/post";
+import {
+  Comment,
+  CommentData,
+  CommentParam,
+  Post,
+  PostParam,
+} from "../interface/post";
+import shortId from "shortid";
+
 export interface PostState {
   mainPosts: Post[]; // 메인에 보여질 포스트내용
   imagePaths: string[]; // 미리보기 이미지 경로
@@ -80,7 +88,17 @@ export const addPost = createAsyncAction(
   ADD_POST_FAILURE
 )<PostParam, Post, AxiosError>();
 
-type PostAction = ActionType<typeof addPost>;
+export const ADD_COMMENT_REQUEST = "ADD_COMMENT_REQUEST";
+export const ADD_COMMENT_SUCCESS = "ADD_COMMENT_SUCCESS";
+export const ADD_COMMENT_FAILURE = "ADD_COMMENT_FAILURE";
+
+export const addComment = createAsyncAction(
+  ADD_COMMENT_REQUEST,
+  ADD_COMMENT_SUCCESS,
+  ADD_COMMENT_FAILURE
+)<CommentParam, CommentData, AxiosError>();
+
+type PostAction = ActionType<typeof addPost | typeof addComment>;
 
 const post = createReducer<PostState, PostAction>(initialState, {
   [ADD_POST_REQUEST]: (state) =>
@@ -99,6 +117,27 @@ const post = createReducer<PostState, PostAction>(initialState, {
     produce(state, (draft) => {
       draft.addPostLoading = false;
       draft.addPostError = action.payload;
+    }),
+  [ADD_COMMENT_REQUEST]: (state) =>
+    produce(state, (draft) => {
+      draft.addCommentDone = false;
+      draft.addCommentLoading = true;
+    }),
+  [ADD_COMMENT_SUCCESS]: (state, action) =>
+    produce(state, (draft) => {
+      draft.addCommentLoading = false;
+      draft.addCommentDone = true;
+      const index = state.mainPosts.findIndex(
+        (post) => post.id === action.payload.postId
+      );
+      draft.mainPosts[index].Comments.push(action.payload.commentData);
+
+      tempId++;
+    }),
+  [ADD_COMMENT_FAILURE]: (state, action) =>
+    produce(state, (draft) => {
+      draft.addCommentLoading = false;
+      draft.addCommentError = action.payload;
     }),
 });
 

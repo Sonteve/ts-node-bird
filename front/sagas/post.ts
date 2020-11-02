@@ -1,10 +1,15 @@
 import { call, delay, put, takeLatest } from "redux-saga/effects";
-import axios from "axios";
+
+/* import axios from "axios"; */
 import {
   ADD_POST_REQUEST,
   ADD_POST_SUCCESS,
   ADD_POST_FAILURE,
   addPost,
+  ADD_COMMENT_FAILURE,
+  ADD_COMMENT_REQUEST,
+  addComment,
+  ADD_COMMENT_SUCCESS,
 } from "../reducers/post";
 import { Post } from "../interface/post";
 import { ADD_POST_TO_ME } from "../reducers/user";
@@ -49,6 +54,34 @@ function* addPostSaga(action: ReturnType<typeof addPost.request>) {
   }
 }
 
+function* addCommentSaga(action: ReturnType<typeof addComment.request>) {
+  try {
+    const { userId, postId, nickname, content } = action.payload;
+    /* const result = yield call(loginAPI, action.payload); */
+    yield delay(1000);
+    yield put({
+      type: ADD_COMMENT_SUCCESS,
+      payload: {
+        commentData: {
+          User: {
+            id: userId,
+            nickname,
+          },
+          content,
+        },
+        postId,
+      },
+    });
+  } catch (err) {
+    console.error(err.response.data);
+    yield put({
+      type: ADD_COMMENT_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
 export default function* postSaga() {
   yield takeLatest(ADD_POST_REQUEST, addPostSaga);
+  yield takeLatest(ADD_COMMENT_REQUEST, addCommentSaga);
 }

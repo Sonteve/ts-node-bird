@@ -5,15 +5,13 @@ import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../reducers";
 import { loginAction } from "../reducers/user";
+import useInput from "../hooks/useInput";
 
 const LoginForm = () => {
   const dispatch = useDispatch();
-  const { me, logInLoading } = useSelector(({ user }: RootState) => user);
-  const [email, setEmail] = useState<string>("");
+  const { logInLoading } = useSelector(({ user }: RootState) => user);
+  const [email, onChangeEmail, setEmail] = useInput("");
   const [password, setPassword] = useState<string>("");
-  const onChangeEmail = useCallback((e) => {
-    setEmail(e.target.value);
-  }, []);
 
   const onChangePassword = useCallback((e) => {
     setPassword(e.target.value);

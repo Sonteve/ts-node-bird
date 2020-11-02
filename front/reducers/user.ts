@@ -28,6 +28,10 @@ export const UNFOLLOW_REQUEST = "UNFOLLOW_REQUEST";
 export const UNFOLLOW_SUCCESS = "UNFOLLOW_SUCCESS";
 export const UNFOLLOW_FAILURE = "UNFOLLOW_FAILURE";
 
+export const CHANGE_NICKNAME_REQUEST = "CHANGE_NICKNAME_REQUEST";
+export const CHANGE_NICKNAME_SUCCESS = "CHANGE_NICKNAME_SUCCESS";
+export const CHANGE_NICKNAME_FAILURE = "CHANGE_NICKNAME_FAILURE";
+
 export const ADD_POST_TO_ME = "ADD_POST_TO_ME";
 
 export const addPostToMe = createAction(ADD_POST_TO_ME)<Post>();
@@ -50,13 +54,20 @@ export const signupAction = createAsyncAction(
   SIGN_UP_FAILURE
 )<SignupParam, undefined, AxiosError>();
 
+export const changeNicknameAction = createAsyncAction(
+  CHANGE_NICKNAME_REQUEST,
+  CHANGE_NICKNAME_SUCCESS,
+  CHANGE_NICKNAME_FAILURE
+)<string, string, AxiosError>();
+
 type UserAction = ActionType<
   | typeof loginAction
   | typeof logoutAction
   | typeof signupAction
   | typeof addPostToMe
+  | typeof changeNicknameAction
 >;
-
+//f8901c8f24b809bc5cfe8eb80ea72569
 export interface UserState {
   me: UserData | null;
   signUpData: null;
@@ -69,6 +80,9 @@ export interface UserState {
   signUpLoading: boolean; // 회원가입 시도중
   signUpDone: boolean;
   signUpError: AxiosError | null;
+  changeNicknameLoading: boolean; // 회원가입 시도중
+  changeNicknameDone: boolean;
+  changeNicknameError: AxiosError | null;
   followLoading: boolean; // 회원가입 시도중
   followDone: boolean;
   followError: AxiosError | null;
@@ -89,6 +103,9 @@ const initialState: UserState = {
   signUpLoading: false, // 회원가입 시도중
   signUpDone: false,
   signUpError: null,
+  changeNicknameLoading: false, // 회원가입 시도중
+  changeNicknameDone: false,
+  changeNicknameError: null,
   followLoading: false,
   followDone: false,
   followError: null,
@@ -152,6 +169,24 @@ const user = createReducer<UserState, UserAction>(initialState, {
     produce(state, (draft) => {
       if (!draft.me) return;
       draft.me.Posts.unshift(action.payload);
+    }),
+  [CHANGE_NICKNAME_REQUEST]: (state) =>
+    produce(state, (draft) => {
+      draft.changeNicknameLoading = true;
+      draft.changeNicknameDone = false;
+      draft.changeNicknameError = null;
+    }),
+  [CHANGE_NICKNAME_SUCCESS]: (state, action) =>
+    produce(state, (draft) => {
+      draft.changeNicknameLoading = false;
+      draft.changeNicknameDone = true;
+      if (!draft.me) return;
+      draft.me.nickname = action.payload;
+    }),
+  [CHANGE_NICKNAME_FAILURE]: (state, action) =>
+    produce(state, (draft) => {
+      draft.changeNicknameLoading = false;
+      draft.changeNicknameError = action.payload;
     }),
   /* [FOLLOW_REQUEST]: (state) =>
     produce(state, (draft) => {

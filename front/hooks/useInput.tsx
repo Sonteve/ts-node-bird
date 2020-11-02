@@ -6,8 +6,8 @@ const useInput = (
   initialValue = ""
 ): [
   string,
-  React.Dispatch<React.SetStateAction<string>>,
-  (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
+  (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void,
+  React.Dispatch<React.SetStateAction<string>>
 ] => {
   const [input, setInput] = useState(initialValue);
   const onChangeInput = useCallback(
@@ -16,7 +16,7 @@ const useInput = (
     },
     []
   );
-  return [input, setInput, onChangeInput];
+  return [input, onChangeInput, setInput];
 };
 
 export default useInput;
