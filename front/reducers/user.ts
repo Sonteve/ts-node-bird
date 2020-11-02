@@ -8,6 +8,7 @@ import {
 } from "typesafe-actions";
 import { Post } from "../interface/post";
 import { LoginParam, SignupParam, UserData } from "../interface/user";
+import { removePost } from "./post";
 export const LOG_IN_REQUEST = "LOG_IN_REQUEST";
 export const LOG_IN_SUCCESS = "LOG_IN_SUCCESS";
 export const LOG_IN_FAILURE = "LOG_IN_FAILURE";
@@ -33,8 +34,10 @@ export const CHANGE_NICKNAME_SUCCESS = "CHANGE_NICKNAME_SUCCESS";
 export const CHANGE_NICKNAME_FAILURE = "CHANGE_NICKNAME_FAILURE";
 
 export const ADD_POST_TO_ME = "ADD_POST_TO_ME";
-
 export const addPostToMe = createAction(ADD_POST_TO_ME)<Post>();
+
+export const REMOVE_POST_OF_ME = "REMOVE_POST_OF_ME";
+export const removePostOfMe = createAction(REMOVE_POST_OF_ME)<{ id: number }>();
 
 export const loginAction = createAsyncAction(
   LOG_IN_REQUEST,
@@ -66,6 +69,7 @@ type UserAction = ActionType<
   | typeof signupAction
   | typeof addPostToMe
   | typeof changeNicknameAction
+  | typeof removePostOfMe
 >;
 //f8901c8f24b809bc5cfe8eb80ea72569
 export interface UserState {
@@ -169,6 +173,14 @@ const user = createReducer<UserState, UserAction>(initialState, {
     produce(state, (draft) => {
       if (!draft.me) return;
       draft.me.Posts.unshift(action.payload);
+    }),
+  [REMOVE_POST_OF_ME]: (state, action) =>
+    produce(state, (draft) => {
+      if (!draft.me) return;
+      const index = draft.me.Posts.findIndex(
+        (post) => post.id === action.payload.id
+      );
+      draft.me.Posts.splice(index, 1);
     }),
   [CHANGE_NICKNAME_REQUEST]: (state) =>
     produce(state, (draft) => {

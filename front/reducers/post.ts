@@ -24,6 +24,9 @@ export interface PostState {
   addCommentLoading: boolean;
   addCommentDone: boolean;
   addCommentError: AxiosError | null;
+  removePostLoading: boolean;
+  removePostDone: boolean;
+  removePostError: AxiosError | null;
 }
 
 // 초기 상태
@@ -76,6 +79,9 @@ const initialState: PostState = {
   addCommentLoading: false,
   addCommentDone: false,
   addCommentError: null,
+  removePostLoading: false,
+  removePostDone: false,
+  removePostError: null,
 };
 let tempId = 2;
 
@@ -98,7 +104,18 @@ export const addComment = createAsyncAction(
   ADD_COMMENT_FAILURE
 )<CommentParam, CommentData, AxiosError>();
 
-type PostAction = ActionType<typeof addPost | typeof addComment>;
+export const REMOVE_POST_REQUEST = "REMOVE_POST_REQUEST";
+export const REMOVE_POST_SUCCESS = "REMOVE_POST_SUCCESS";
+export const REMOVE_POST_FAILURE = "REMOVE_POST_FAILURE";
+export const removePost = createAsyncAction(
+  REMOVE_POST_REQUEST,
+  REMOVE_POST_SUCCESS,
+  REMOVE_POST_FAILURE
+)<{ id: number }, { id: number }, AxiosError>();
+
+type PostAction = ActionType<
+  typeof addPost | typeof addComment | typeof removePost
+>;
 
 const post = createReducer<PostState, PostAction>(initialState, {
   [ADD_POST_REQUEST]: (state) =>
@@ -138,6 +155,25 @@ const post = createReducer<PostState, PostAction>(initialState, {
     produce(state, (draft) => {
       draft.addCommentLoading = false;
       draft.addCommentError = action.payload;
+    }),
+  [REMOVE_POST_REQUEST]: (state) =>
+    produce(state, (draft) => {
+      draft.removePostDone = false;
+      draft.removePostLoading = true;
+    }),
+  [REMOVE_POST_SUCCESS]: (state, action) =>
+    produce(state, (draft) => {
+      draft.removePostLoading = false;
+      draft.removePostDone = true;
+      const index = state.mainPosts.findIndex(
+        (post) => post.id === action.payload.id
+      );
+      draft.mainPosts.splice(index, 1);
+    }),
+  [REMOVE_POST_FAILURE]: (state, action) =>
+    produce(state, (draft) => {
+      draft.removePostLoading = false;
+      draft.removePostError = action.payload;
     }),
 });
 

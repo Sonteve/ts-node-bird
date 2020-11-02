@@ -8,18 +8,20 @@ import {
 import { Button, Card, Popover, List, Comment } from "antd";
 import Avatar from "antd/lib/avatar/avatar";
 import React, { useCallback, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Post } from "../interface/post";
 import { RootState } from "../reducers";
 import PostImages from "../components/PostImages";
 import CommentForm from "./CommentForm";
 import PostCardContent from "./PostCardContent";
+import { removePost } from "../reducers/post";
 
 interface Props {
   post: Post;
 }
 
 const PostCard = ({ post }: Props) => {
+  const dispatch = useDispatch();
   const id = useSelector(({ user }: RootState) => user.me?.id);
   const [liked, setLiked] = useState<boolean>(false);
   const [commentFormOpened, setCommentFormOpened] = useState<boolean>(false);
@@ -28,6 +30,11 @@ const PostCard = ({ post }: Props) => {
     () => setCommentFormOpened((prev) => !prev),
     []
   );
+
+  const onClikeRemovePost = useCallback(() => {
+    if (!id) return;
+    dispatch(removePost.request({ id }));
+  }, []);
 
   return (
     <div style={{ marginBottom: 10 }}>
@@ -52,7 +59,9 @@ const PostCard = ({ post }: Props) => {
                 {id && post.User.id === id ? (
                   <>
                     <Button>수정</Button>
-                    <Button type="danger">삭제</Button>
+                    <Button type="danger" onClick={onClikeRemovePost}>
+                      삭제
+                    </Button>
                   </>
                 ) : (
                   <Button>신고</Button>
