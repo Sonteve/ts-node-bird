@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { Input, Form } from "antd";
 import styled from "styled-components";
+import useInput from "../hooks/useInput";
 
 const FormBlock = styled(Form)`
   margin-bottom: 20px;
@@ -9,9 +10,17 @@ const FormBlock = styled(Form)`
 `;
 
 const NicknameEditForm = () => {
+  const [nickname, onChangeNickname] = useInput("");
+  const onSubmitNickname = useCallback(() => {
+    console.log("submit", nickname);
+  }, []);
   return (
-    <FormBlock>
-      <Input.Search addonBefore="닉네임" enterButton="수정" />
+    <FormBlock onFinish={onSubmitNickname}>
+      <Input.Search
+        addonBefore="닉네임"
+        enterButton="수정"
+        onChange={onChangeNickname}
+      />
     </FormBlock>
   );
 };

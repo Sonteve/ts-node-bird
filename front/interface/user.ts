@@ -20,9 +20,9 @@ export interface LoginParam {
 } */
 
 export interface UserData {
-  Posts: { id: number }[];
+  Posts: { id: number | string }[];
   nickname: string;
-  id: number;
+  id: number | string;
   Followings: {
     nickname: string;
   }[];

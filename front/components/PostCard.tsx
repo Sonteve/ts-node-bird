@@ -25,11 +25,13 @@ const PostCard = ({ post }: Props) => {
   const id = useSelector(({ user }: RootState) => user.me?.id);
   const [liked, setLiked] = useState<boolean>(false);
   const [commentFormOpened, setCommentFormOpened] = useState<boolean>(false);
-  const onToggleLike = useCallback(() => setLiked((prev) => !prev), []);
-  const onToggleComment = useCallback(
-    () => setCommentFormOpened((prev) => !prev),
-    []
-  );
+  const onToggleLike = useCallback(() => {
+    if (!id) return;
+    setLiked((prev) => !prev);
+  }, []);
+  const onToggleComment = useCallback(() => {
+    setCommentFormOpened((prev) => !prev);
+  }, []);
 
   const onClikeRemovePost = useCallback(() => {
     if (!id) return;

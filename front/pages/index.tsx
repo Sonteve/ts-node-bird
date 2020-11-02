@@ -1,17 +1,47 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import AppLayout from "../components/AppLayout";
 import { RootState } from "../reducers";
 import PostForm from "../components/PostForm";
 import PostCard from "../components/PostCard";
 import { media } from "../hooks/useMedia";
+import { loadPost } from "../reducers/post";
 
 const Home = () => {
   /* const [currentmedia] = useMedia(); */
+  const dispatch = useDispatch();
   const { isPc, isTablet } = media();
   console.log(isPc, isTablet);
   const { me } = useSelector(({ user }: RootState) => user);
-  const { mainPosts } = useSelector(({ post }: RootState) => post);
+  const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector(
+    ({ post }: RootState) => post
+  );
+  useEffect(() => {
+    dispatch(loadPost.request());
+  }, []);
+
+  useEffect(() => {
+    function onScroll() {
+      console.log(
+        window.scrollY,
+        document.documentElement.clientHeight,
+        document.documentElement.scrollHeight
+      );
+      if (
+        window.scrollY + document.documentElement.clientHeight >
+        document.documentElement.scrollHeight - 300
+      ) {
+        if (hasMorePosts && !loadPostsLoading) {
+          dispatch(loadPost.request());
+        }
+      }
+    }
+    window.addEventListener("scroll", onScroll);
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, [hasMorePosts, loadPostsLoading]);
   return (
     <AppLayout>
       <div>

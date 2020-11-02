@@ -1,5 +1,13 @@
-import { call, delay, put, takeLatest } from "redux-saga/effects";
-
+import {
+  call,
+  debounce,
+  delay,
+  put,
+  takeLatest,
+  throttle,
+} from "redux-saga/effects";
+import shortId from "shortid";
+import faker from "faker";
 /* import axios from "axios"; */
 import {
   ADD_POST_REQUEST,
@@ -14,6 +22,10 @@ import {
   removePost,
   REMOVE_POST_SUCCESS,
   REMOVE_POST_FAILURE,
+  loadPost,
+  LOAD_POSTS_SUCCESS,
+  LOAD_POSTS_FAILURE,
+  LOAD_POSTS_REQUEST,
 } from "../reducers/post";
 import { Post } from "../interface/post";
 import { ADD_POST_TO_ME, REMOVE_POST_OF_ME } from "../reducers/user";
@@ -111,8 +123,53 @@ function* removePostSaga(action: ReturnType<typeof removePost.request>) {
   }
 }
 
+export const generateDummyPost = (number: number) =>
+  Array(number)
+    .fill(null)
+    .map((v, i) => ({
+      id: shortId.generate(),
+      User: {
+        id: shortId.generate(),
+        nickname: shortId.generate(),
+      },
+      content: faker.lorem.paragraph(),
+      Images: [
+        {
+          src: faker.image.image(),
+        },
+      ],
+      Comments: [
+        {
+          User: {
+            id: shortId.generate(),
+            nickname: faker.name.findName(),
+          },
+          content: faker.lorem.sentence(),
+        },
+      ],
+      createdAt: "2020-10-29",
+    }));
+
+function* loadPostsSaga(action: ReturnType<typeof loadPost.request>) {
+  try {
+    /* const result = yield call(loginAPI, action.payload); */
+    yield delay(1000);
+    yield put({
+      type: LOAD_POSTS_SUCCESS,
+      payload: generateDummyPost(10),
+    });
+  } catch (err) {
+    console.error(err.response.data);
+    yield put({
+      type: LOAD_POSTS_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
 export default function* postSaga() {
   yield takeLatest(ADD_POST_REQUEST, addPostSaga);
   yield takeLatest(ADD_COMMENT_REQUEST, addCommentSaga);
   yield takeLatest(REMOVE_POST_REQUEST, removePostSaga);
+  yield takeLatest(LOAD_POSTS_REQUEST, loadPostsSaga);
 }

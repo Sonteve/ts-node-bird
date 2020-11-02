@@ -1,7 +1,7 @@
 export interface Post {
-  id: number;
+  id: number | string;
   User: {
-    id: number;
+    id: number | string;
     nickname: string;
   };
   content: string;
@@ -13,14 +13,14 @@ export interface Post {
 }
 
 export interface PostParam {
-  id: number;
+  id: number | string;
   nickname: string;
   content: string;
 }
 
 export interface Comment {
   User: {
-    id: number;
+    id: number | string;
     nickname: string;
   };
   content: string;
@@ -29,7 +29,7 @@ export interface Comment {
 export interface CommentData {
   commentData: {
     User: {
-      id: number;
+      id: number | string;
       nickname: string;
     };
     content: string;
@@ -38,8 +38,8 @@ export interface CommentData {
 }
 
 export interface CommentParam {
-  userId: number;
-  postId: number;
+  userId: number | string;
+  postId: number | string;
   nickname: string;
   content: string;
 }
