@@ -18,6 +18,14 @@ import {
   changeNicknameAction,
   CHANGE_NICKNAME_SUCCESS,
   CHANGE_NICKNAME_FAILURE,
+  FOLLOW_REQUEST,
+  UNFOLLOW_REQUEST,
+  followAction,
+  unfollowAction,
+  FOLLOW_SUCCESS,
+  FOLLOW_FAILURE,
+  UNFOLLOW_FAILURE,
+  UNFOLLOW_SUCCESS,
 } from "../reducers/user";
 import { ActionType } from "typesafe-actions";
 
@@ -33,14 +41,14 @@ function* loginSaga(action: ReturnType<typeof loginAction.request>) {
       nickname: "sonteve",
       id: 1,
       Followings: [
-        { nickname: "슬리프" },
-        { nickname: "엄달" },
-        { nickname: "아나테마" },
+        { id: "asd", nickname: "슬리프" },
+        { id: "zv", nickname: "엄달" },
+        { id: "qqw", nickname: "아나테마" },
       ],
       Followers: [
-        { nickname: "손티브" },
-        { nickname: "바보" },
-        { nickname: "손현준" },
+        { id: "mng", nickname: "손티브" },
+        { id: "sdsa", nickname: "바보" },
+        { id: "vkfmn", nickname: "손현준" },
       ],
       Posts: [{ id: 1 }],
     };
@@ -120,9 +128,45 @@ function* changeNicknameSaga(
   }
 }
 
+function* followSaga(action: ActionType<typeof followAction.request>) {
+  try {
+    /* const result = yield call(loginAPI, action.payload); */
+    yield delay(500);
+    yield put({
+      type: FOLLOW_SUCCESS,
+      payload: action.payload,
+    });
+  } catch (err) {
+    console.error(err.response.data);
+    yield put({
+      type: FOLLOW_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+function* unfollowSaga(action: ActionType<typeof unfollowAction.request>) {
+  try {
+    /* const result = yield call(loginAPI, action.payload); */
+    yield delay(500);
+    yield put({
+      type: UNFOLLOW_SUCCESS,
+      payload: action.payload,
+    });
+  } catch (err) {
+    console.error(err.response.data);
+    yield put({
+      type: UNFOLLOW_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
 export default function* userSaga() {
   yield takeLatest(LOG_IN_REQUEST, loginSaga);
   yield takeLatest(LOG_OUT_REQUEST, logoutSaga);
   yield takeLatest(SIGN_UP_REQUEST, signUpSaga);
   yield takeLatest(CHANGE_NICKNAME_REQUEST, changeNicknameSaga);
+  yield takeLatest(FOLLOW_REQUEST, followSaga);
+  yield takeLatest(UNFOLLOW_REQUEST, unfollowSaga);
 }

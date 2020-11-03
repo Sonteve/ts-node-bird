@@ -7,6 +7,7 @@ import {
 } from "@ant-design/icons";
 import { Button, Card, Popover, List, Comment } from "antd";
 import Avatar from "antd/lib/avatar/avatar";
+
 import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Post } from "../interface/post";
@@ -15,6 +16,7 @@ import PostImages from "../components/PostImages";
 import CommentForm from "./CommentForm";
 import PostCardContent from "./PostCardContent";
 import { removePost } from "../reducers/post";
+import FollowButton from "./FollowButton";
 
 interface Props {
   post: Post;
@@ -74,6 +76,7 @@ const PostCard = ({ post }: Props) => {
             <EllipsisOutlined />
           </Popover>,
         ]}
+        extra={id && <FollowButton post={post} />}
       >
         <Card.Meta
           avatar={<Avatar>{post.User.nickname[0]}</Avatar>}
