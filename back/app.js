@@ -1,7 +1,10 @@
-const expess = require("express");
+const express = require("express");
 const postRouter = require("./routes/post");
 const userRouter = require("./routes/user");
 const db = require("./models");
+const app = express();
+const cors = require("cors");
+app.set("PORT", 3060);
 
 db.sequelize
   .sync()
@@ -11,9 +14,14 @@ db.sequelize
   .catch(() => {
     console.log("db 연결 실패");
   });
+app.use(
+  cors({
+    origin: "*",
+  })
+);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-const app = expess();
-app.set("PORT", 3060);
 app.use("/api", postRouter);
 app.use("/user", userRouter);
 
