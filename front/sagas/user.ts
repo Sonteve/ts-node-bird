@@ -1,6 +1,6 @@
 import { call, delay, put, takeLatest } from "redux-saga/effects";
-import { LoginParam } from "../interface/user";
-import axios from "axios";
+import { LoginParam, SignupParam } from "../interface/user";
+import axios, { AxiosResponse } from "axios";
 import {
   LOG_IN_REQUEST,
   LOG_IN_SUCCESS,
@@ -60,7 +60,7 @@ function* loginSaga(action: ReturnType<typeof loginAction.request>) {
     console.error(err.response.data);
     yield put({
       type: LOG_IN_FAILURE,
-      error: err.response.data,
+      payload: err,
     });
   }
 }
@@ -80,19 +80,20 @@ function* logoutSaga(action: ActionType<typeof logoutAction.request>) {
     console.error(err.response.data);
     yield put({
       type: LOG_OUT_FAILURE,
-      error: err.response.data,
+      payload: err,
     });
   }
 }
 
-/* function loginAPI(data: LoginParam) {
-  return axios.get("/api/login");
-} */
+function signUpAPI(data: SignupParam) {
+  return axios.post("/user", data);
+}
 
 function* signUpSaga(action: ActionType<typeof signupAction.request>) {
   try {
-    /* const result = yield call(loginAPI, action.payload); */
-    yield delay(1000);
+    const result = yield call(signUpAPI, action.payload);
+    /* yield delay(1000); */
+    console.log("result", result);
     yield put({
       type: SIGN_UP_SUCCESS,
     });
@@ -100,7 +101,7 @@ function* signUpSaga(action: ActionType<typeof signupAction.request>) {
     console.error(err.response.data);
     yield put({
       type: SIGN_UP_FAILURE,
-      error: err.response.data,
+      payload: err,
     });
   }
 }
@@ -123,7 +124,7 @@ function* changeNicknameSaga(
     console.error(err.response.data);
     yield put({
       type: CHANGE_NICKNAME_FAILURE,
-      error: err.response.data,
+      payload: err,
     });
   }
 }
@@ -140,7 +141,7 @@ function* followSaga(action: ActionType<typeof followAction.request>) {
     console.error(err.response.data);
     yield put({
       type: FOLLOW_FAILURE,
-      error: err.response.data,
+      payload: err,
     });
   }
 }
@@ -157,7 +158,7 @@ function* unfollowSaga(action: ActionType<typeof unfollowAction.request>) {
     console.error(err.response.data);
     yield put({
       type: UNFOLLOW_FAILURE,
-      error: err.response.data,
+      payload: err,
     });
   }
 }

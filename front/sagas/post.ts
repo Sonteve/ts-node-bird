@@ -65,7 +65,7 @@ function* addPostSaga(action: ReturnType<typeof addPost.request>) {
     console.error(err.response.data);
     yield put({
       type: ADD_POST_FAILURE,
-      error: err.response.data,
+      payload: err,
     });
   }
 }
@@ -92,7 +92,7 @@ function* addCommentSaga(action: ReturnType<typeof addComment.request>) {
     console.error(err.response.data);
     yield put({
       type: ADD_COMMENT_FAILURE,
-      error: err.response.data,
+      payload: err,
     });
   }
 }
@@ -118,7 +118,7 @@ function* removePostSaga(action: ReturnType<typeof removePost.request>) {
     console.error(err.response.data);
     yield put({
       type: REMOVE_POST_FAILURE,
-      error: err.response.data,
+      payload: err,
     });
   }
 }
@@ -162,7 +162,7 @@ function* loadPostsSaga(action: ReturnType<typeof loadPost.request>) {
     console.error(err.response.data);
     yield put({
       type: LOAD_POSTS_FAILURE,
-      error: err.response.data,
+      payload: err,
     });
   }
 }
