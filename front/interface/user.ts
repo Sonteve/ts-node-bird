@@ -24,6 +24,7 @@ export interface UserData {
   nickname: string;
   id: number | string;
   Followings: {
+    id: number | string;
     nickname: string;
   }[];
   Followers: {
@@ -35,4 +36,9 @@ export interface SignupParam {
   email: string;
   nickname: string;
   password: string;
+}
+
+export interface FollowParam {
+  id: number | string;
+  nickname: string;
 }

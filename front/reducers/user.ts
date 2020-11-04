@@ -7,7 +7,12 @@ import {
   createReducer,
 } from "typesafe-actions";
 import { Post } from "../interface/post";
-import { LoginParam, SignupParam, UserData } from "../interface/user";
+import {
+  FollowParam,
+  LoginParam,
+  SignupParam,
+  UserData,
+} from "../interface/user";
 import { removePost } from "./post";
 export const LOG_IN_REQUEST = "LOG_IN_REQUEST";
 export const LOG_IN_SUCCESS = "LOG_IN_SUCCESS";
@@ -63,6 +68,18 @@ export const changeNicknameAction = createAsyncAction(
   CHANGE_NICKNAME_FAILURE
 )<string, string, AxiosError>();
 
+export const followAction = createAsyncAction(
+  FOLLOW_REQUEST,
+  FOLLOW_SUCCESS,
+  FOLLOW_FAILURE
+)<FollowParam, FollowParam, AxiosError>();
+
+export const unfollowAction = createAsyncAction(
+  UNFOLLOW_REQUEST,
+  UNFOLLOW_SUCCESS,
+  UNFOLLOW_FAILURE
+)<FollowParam, FollowParam, AxiosError>();
+
 type UserAction = ActionType<
   | typeof loginAction
   | typeof logoutAction
@@ -70,6 +87,8 @@ type UserAction = ActionType<
   | typeof addPostToMe
   | typeof changeNicknameAction
   | typeof removePostOfMe
+  | typeof followAction
+  | typeof unfollowAction
 >;
 //f8901c8f24b809bc5cfe8eb80ea72569
 export interface UserState {
@@ -200,41 +219,46 @@ const user = createReducer<UserState, UserAction>(initialState, {
       draft.changeNicknameLoading = false;
       draft.changeNicknameError = action.payload;
     }),
-  /* [FOLLOW_REQUEST]: (state) =>
+  [FOLLOW_REQUEST]: (state) =>
     produce(state, (draft) => {
       draft.followLoading = true;
       draft.followError = null;
       draft.followDone = false;
     }),
-  [FOLLOW_SUCCESS]: (state, { payload: data }) =>
+  [FOLLOW_SUCCESS]: (state, action) =>
     produce(state, (draft) => {
       draft.followLoading = false;
       draft.followDone = true;
-      draft.me.Followings.push({ id: data.UserId });
+      if (!draft.me) return;
+      draft.me.Followings.push(action.payload);
     }),
-  [FOLLOW_FAILURE]: (state, { error }) =>
+  [FOLLOW_FAILURE]: (state, action) =>
     produce(state, (draft) => {
       draft.followLoading = false;
-      draft.followError = error;
+      draft.followError = action.payload;
     }),
+
   [UNFOLLOW_REQUEST]: (state) =>
     produce(state, (draft) => {
       draft.unfollowLoading = true;
       draft.unfollowError = null;
       draft.unfollowDone = false;
     }),
-  [UNFOLLOW_SUCCESS]: (state, { payload: data }) =>
+  [UNFOLLOW_SUCCESS]: (state, action) =>
     produce(state, (draft) => {
       draft.unfollowLoading = false;
       draft.unfollowDone = true;
-      const index = draft.me.Followings.findIndex((v) => v.id === data.UserId);
+      if (!draft.me) return;
+      const index = draft.me.Followings.findIndex(
+        (v) => v.nickname === action.payload.nickname
+      );
       draft.me.Followings.splice(index, 1);
     }),
-  [UNFOLLOW_FAILURE]: (state, { error }) =>
+  [UNFOLLOW_FAILURE]: (state, action) =>
     produce(state, (draft) => {
       draft.unfollowLoading = false;
-      draft.unfollowError = error;
-    }), */
+      draft.unfollowError = action.payload;
+    }),
 });
 
 export default user;
