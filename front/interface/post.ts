@@ -1,45 +1,40 @@
 export interface Post {
-  id: number | string;
+  id: number;
+  content: string;
   User: {
-    id: number | string;
+    id: number;
     nickname: string;
   };
-  content: string;
+  UserId: number;
+  RetweetId: number | null;
   Images: {
     src: string;
   }[];
-  Comments: Comment[];
+  Comments: CommentData[];
   createdAt: string;
+  updatedAt: string;
+  Likers: { id: number; nickname: string }[];
 }
 
 export interface PostParam {
-  id: number | string;
-  nickname: string;
   content: string;
 }
 
-export interface Comment {
-  User: {
-    id: number | string;
-    nickname: string;
-  };
+export interface CommentParam {
+  PostId: number;
+  UserId: number;
   content: string;
 }
 
 export interface CommentData {
-  commentData: {
-    User: {
-      id: number | string;
-      nickname: string;
-    };
-    content: string;
-  };
-  postId: number;
-}
-
-export interface CommentParam {
-  userId: number | string;
-  postId: number | string;
-  nickname: string;
+  id: number;
   content: string;
+  createdAt: string;
+  updatedAt: string;
+  UserId: number;
+  PostId: number;
+  User: {
+    id: number;
+    nickname: string;
+  };
 }

@@ -20,11 +20,11 @@ export interface LoginParam {
 } */
 
 export interface UserData {
-  Posts: { id: number | string }[];
+  Posts: { id: number }[];
   nickname: string;
-  id: number | string;
+  id: number;
   Followings: {
-    id: number | string;
+    id: number;
     nickname: string;
   }[];
   Followers: {
@@ -39,6 +39,6 @@ export interface SignupParam {
 }
 
 export interface FollowParam {
-  id: number | string;
+  id: number;
   nickname: string;
 }

@@ -6,13 +6,7 @@ import {
   createAsyncAction,
   createReducer,
 } from "typesafe-actions";
-import {
-  Comment,
-  CommentData,
-  CommentParam,
-  Post,
-  PostParam,
-} from "../interface/post";
+import { CommentData, CommentParam, Post, PostParam } from "../interface/post";
 import shortId from "shortid";
 import faker from "faker";
 
@@ -62,7 +56,7 @@ export const addPost = createAsyncAction(
   ADD_POST_REQUEST,
   ADD_POST_SUCCESS,
   ADD_POST_FAILURE
-)<PostParam, Post, AxiosError>();
+)<string, Post, AxiosError>();
 
 export const ADD_COMMENT_REQUEST = "ADD_COMMENT_REQUEST";
 export const ADD_COMMENT_SUCCESS = "ADD_COMMENT_SUCCESS";
@@ -124,11 +118,9 @@ const post = createReducer<PostState, PostAction>(initialState, {
       draft.addCommentLoading = false;
       draft.addCommentDone = true;
       const index = state.mainPosts.findIndex(
-        (post) => post.id === action.payload.postId
+        (post) => post.id === action.payload.PostId
       );
-      draft.mainPosts[index].Comments.push(action.payload.commentData);
-
-      tempId++;
+      draft.mainPosts[index].Comments.push(action.payload);
     }),
   [ADD_COMMENT_FAILURE]: (state, action) =>
     produce(state, (draft) => {

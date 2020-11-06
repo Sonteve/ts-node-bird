@@ -23,9 +23,8 @@ const PostForm = () => {
 
   const onSubmit = useCallback(() => {
     if (!me) return;
-    const { id, nickname } = me;
     console.log("text", text);
-    dispatch(addPost.request({ id, nickname, content: text }));
+    dispatch(addPost.request(text));
   }, [me, text]);
 
   const onUploadImage = useCallback(() => {

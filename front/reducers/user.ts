@@ -38,6 +38,16 @@ export const CHANGE_NICKNAME_REQUEST = "CHANGE_NICKNAME_REQUEST";
 export const CHANGE_NICKNAME_SUCCESS = "CHANGE_NICKNAME_SUCCESS";
 export const CHANGE_NICKNAME_FAILURE = "CHANGE_NICKNAME_FAILURE";
 
+export const LOAD_MY_INFO_REQUEST = "LOAD_MY_INFO_REQUEST";
+export const LOAD_MY_INFO_SUCCESS = "LOAD_MY_INFO_SUCCESS";
+export const LOAD_MY_INFO_FAILURE = "LOAD_MY_INFO_FAILURE";
+
+export const loadMyInfoAction = createAsyncAction(
+  LOAD_MY_INFO_REQUEST,
+  LOAD_MY_INFO_SUCCESS,
+  LOAD_MY_INFO_FAILURE
+)<undefined, UserData, AxiosError>();
+
 export const ADD_POST_TO_ME = "ADD_POST_TO_ME";
 export const addPostToMe = createAction(ADD_POST_TO_ME)<Post>();
 
@@ -89,6 +99,7 @@ type UserAction = ActionType<
   | typeof removePostOfMe
   | typeof followAction
   | typeof unfollowAction
+  | typeof loadMyInfoAction
 >;
 //f8901c8f24b809bc5cfe8eb80ea72569
 export interface UserState {
@@ -112,6 +123,9 @@ export interface UserState {
   unfollowLoading: boolean; // 회원가입 시도중
   unfollowDone: boolean;
   unfollowError: AxiosError | null;
+  loadMyInfoLoading: boolean; // 로그인 시도중
+  loadMyInfoDone: boolean;
+  loadMyInfoError: AxiosError | null;
 }
 
 const initialState: UserState = {
@@ -135,6 +149,9 @@ const initialState: UserState = {
   unfollowLoading: false,
   unfollowDone: false,
   unfollowError: null,
+  loadMyInfoLoading: false,
+  loadMyInfoDone: false,
+  loadMyInfoError: null,
 };
 
 const user = createReducer<UserState, UserAction>(initialState, {
@@ -258,6 +275,23 @@ const user = createReducer<UserState, UserAction>(initialState, {
     produce(state, (draft) => {
       draft.unfollowLoading = false;
       draft.unfollowError = action.payload;
+    }),
+  [LOAD_MY_INFO_REQUEST]: (state, action) =>
+    produce(state, (draft) => {
+      draft.loadMyInfoLoading = true;
+      draft.loadMyInfoError = null;
+      draft.loadMyInfoDone = false;
+    }),
+  [LOAD_MY_INFO_SUCCESS]: (state, action) =>
+    produce(state, (draft) => {
+      draft.me = action.payload;
+      draft.loadMyInfoLoading = false;
+      draft.loadMyInfoDone = true;
+    }),
+  [LOAD_MY_INFO_FAILURE]: (state, action) =>
+    produce(state, (draft) => {
+      draft.loadMyInfoLoading = false;
+      draft.loadMyInfoError = action.payload;
     }),
 });
 

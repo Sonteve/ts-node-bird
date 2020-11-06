@@ -6,6 +6,7 @@ import PostForm from "../components/PostForm";
 import PostCard from "../components/PostCard";
 import { media } from "../hooks/useMedia";
 import { loadPost } from "../reducers/post";
+import { loadMyInfoAction } from "../reducers/user";
 
 const Home = () => {
   /* const [currentmedia] = useMedia(); */
@@ -18,6 +19,7 @@ const Home = () => {
   );
   useEffect(() => {
     dispatch(loadPost.request());
+    dispatch(loadMyInfoAction.request());
   }, []);
 
   useEffect(() => {

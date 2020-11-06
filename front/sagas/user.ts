@@ -1,5 +1,5 @@
 import { call, delay, put, takeLatest } from "redux-saga/effects";
-import { LoginParam } from "../interface/user";
+import { LoginParam, SignupParam } from "../interface/user";
 import axios from "axios";
 import {
   LOG_IN_REQUEST,
@@ -26,53 +26,40 @@ import {
   FOLLOW_FAILURE,
   UNFOLLOW_FAILURE,
   UNFOLLOW_SUCCESS,
+  loadMyInfoAction,
+  LOAD_MY_INFO_REQUEST,
+  LOAD_MY_INFO_SUCCESS,
+  LOAD_MY_INFO_FAILURE,
 } from "../reducers/user";
 import { ActionType } from "typesafe-actions";
 
-/* function loginAPI(data: LoginParam) {
-  return axios.get("/api/login");
-} */
+function loginAPI(data: LoginParam) {
+  return axios.post("/user/login", data);
+}
 
 function* loginSaga(action: ReturnType<typeof loginAction.request>) {
   try {
-    /* const result = yield call(loginAPI, action.payload); */
-    yield delay(1000);
-    const dummyUser = {
-      nickname: "sonteve",
-      id: 1,
-      Followings: [
-        { id: "asd", nickname: "슬리프" },
-        { id: "zv", nickname: "엄달" },
-        { id: "qqw", nickname: "아나테마" },
-      ],
-      Followers: [
-        { id: "mng", nickname: "손티브" },
-        { id: "sdsa", nickname: "바보" },
-        { id: "vkfmn", nickname: "손현준" },
-      ],
-      Posts: [{ id: 1 }],
-    };
+    const result = yield call(loginAPI, action.payload);
     yield put({
       type: LOG_IN_SUCCESS,
-      payload: dummyUser,
+      payload: result.data,
     });
   } catch (err) {
     console.error(err.response.data);
     yield put({
       type: LOG_IN_FAILURE,
-      error: err.response.data,
+      payload: err,
     });
   }
 }
 
-/* function loginAPI(data: LoginParam) {
-  return axios.get("/api/login");
-} */
+function logoutAPI() {
+  return axios.post("/user/logout");
+}
 
 function* logoutSaga(action: ActionType<typeof logoutAction.request>) {
   try {
-    /* const result = yield call(loginAPI, action.payload); */
-    yield delay(1000);
+    const result = yield call(logoutAPI);
     yield put({
       type: LOG_OUT_SUCCESS,
     });
@@ -80,19 +67,39 @@ function* logoutSaga(action: ActionType<typeof logoutAction.request>) {
     console.error(err.response.data);
     yield put({
       type: LOG_OUT_FAILURE,
-      error: err.response.data,
+      payload: err,
     });
   }
 }
 
-/* function loginAPI(data: LoginParam) {
-  return axios.get("/api/login");
-} */
+function loadMyInfoAPI() {
+  return axios.get("/user");
+}
+
+function* loadMyInfoSaga(action: ReturnType<typeof loadMyInfoAction.request>) {
+  try {
+    const result = yield call(loadMyInfoAPI);
+    yield put({
+      type: LOAD_MY_INFO_SUCCESS,
+      payload: result.data,
+    });
+  } catch (err) {
+    console.error(err.response.data);
+    yield put({
+      type: LOAD_MY_INFO_FAILURE,
+      payload: err,
+    });
+  }
+}
+
+function signUpAPI(data: SignupParam) {
+  return axios.post("/user", data);
+}
 
 function* signUpSaga(action: ActionType<typeof signupAction.request>) {
   try {
-    /* const result = yield call(loginAPI, action.payload); */
-    yield delay(1000);
+    const result = yield call(signUpAPI, action.payload);
+    console.log(result.data);
     yield put({
       type: SIGN_UP_SUCCESS,
     });
@@ -100,7 +107,7 @@ function* signUpSaga(action: ActionType<typeof signupAction.request>) {
     console.error(err.response.data);
     yield put({
       type: SIGN_UP_FAILURE,
-      error: err.response.data,
+      payload: err,
     });
   }
 }
@@ -123,7 +130,7 @@ function* changeNicknameSaga(
     console.error(err.response.data);
     yield put({
       type: CHANGE_NICKNAME_FAILURE,
-      error: err.response.data,
+      payload: err,
     });
   }
 }
@@ -140,7 +147,7 @@ function* followSaga(action: ActionType<typeof followAction.request>) {
     console.error(err.response.data);
     yield put({
       type: FOLLOW_FAILURE,
-      error: err.response.data,
+      payload: err,
     });
   }
 }
@@ -157,7 +164,7 @@ function* unfollowSaga(action: ActionType<typeof unfollowAction.request>) {
     console.error(err.response.data);
     yield put({
       type: UNFOLLOW_FAILURE,
-      error: err.response.data,
+      payload: err,
     });
   }
 }
@@ -169,4 +176,5 @@ export default function* userSaga() {
   yield takeLatest(CHANGE_NICKNAME_REQUEST, changeNicknameSaga);
   yield takeLatest(FOLLOW_REQUEST, followSaga);
   yield takeLatest(UNFOLLOW_REQUEST, unfollowSaga);
+  yield takeLatest(LOAD_MY_INFO_REQUEST, loadMyInfoSaga);
 }

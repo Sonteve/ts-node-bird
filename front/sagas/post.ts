@@ -27,72 +27,50 @@ import {
   LOAD_POSTS_FAILURE,
   LOAD_POSTS_REQUEST,
 } from "../reducers/post";
-import { Post } from "../interface/post";
+import { Post, CommentParam } from "../interface/post";
 import { ADD_POST_TO_ME, REMOVE_POST_OF_ME } from "../reducers/user";
+import axios from "axios";
 
-/* function loginAPI(data: LoginParam) {
-  return axios.get("/api/login");
-} */
-
-let tempId = 2;
+function addPostAPI(data: string) {
+  return axios.post("/post", { content: data });
+}
 
 function* addPostSaga(action: ReturnType<typeof addPost.request>) {
   try {
-    const { id, nickname, content } = action.payload;
-    /* const result = yield call(loginAPI, action.payload); */
-    yield delay(1000);
-    const dummyPost: Post = {
-      id: tempId,
-      User: {
-        id,
-        nickname,
-      },
-      content,
-      Images: [],
-      Comments: [],
-      createdAt: "2020-10-28",
-    };
+    const result = yield call(addPostAPI, action.payload);
     yield put({
       type: ADD_POST_SUCCESS,
-      payload: dummyPost,
+      payload: result.data,
     });
     yield put({
       type: ADD_POST_TO_ME,
-      payload: { id: tempId },
+      payload: { id: result.data.id },
     });
-    tempId++;
   } catch (err) {
     console.error(err.response.data);
     yield put({
       type: ADD_POST_FAILURE,
-      error: err.response.data,
+      payload: err,
     });
   }
 }
 
+function addCommentAPI(data: CommentParam) {
+  return axios.post(`/post/${data.PostId}/comment`, data);
+}
+
 function* addCommentSaga(action: ReturnType<typeof addComment.request>) {
   try {
-    const { userId, postId, nickname, content } = action.payload;
-    /* const result = yield call(loginAPI, action.payload); */
-    yield delay(1000);
+    const result = yield call(addCommentAPI, action.payload);
     yield put({
       type: ADD_COMMENT_SUCCESS,
-      payload: {
-        commentData: {
-          User: {
-            id: userId,
-            nickname,
-          },
-          content,
-        },
-        postId,
-      },
+      payload: result.data,
     });
   } catch (err) {
     console.error(err.response.data);
     yield put({
       type: ADD_COMMENT_FAILURE,
-      error: err.response.data,
+      payload: err,
     });
   }
 }
@@ -118,7 +96,7 @@ function* removePostSaga(action: ReturnType<typeof removePost.request>) {
     console.error(err.response.data);
     yield put({
       type: REMOVE_POST_FAILURE,
-      error: err.response.data,
+      payload: err,
     });
   }
 }
@@ -162,7 +140,7 @@ function* loadPostsSaga(action: ReturnType<typeof loadPost.request>) {
     console.error(err.response.data);
     yield put({
       type: LOAD_POSTS_FAILURE,
-      error: err.response.data,
+      payload: err,
     });
   }
 }

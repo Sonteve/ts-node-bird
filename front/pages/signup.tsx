@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useCallback, useState } from "react";
+import React, { ChangeEvent, useCallback, useEffect, useState } from "react";
 import Head from "next/head";
 import AppLayout from "../components/AppLayout";
 import { Button, Checkbox, Form, Input } from "antd";
@@ -9,10 +9,13 @@ import Password from "antd/lib/input/Password";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../reducers";
 import { signupAction } from "../reducers/user";
+import Router from "next/router";
 
 const Signup = () => {
   const dispatch = useDispatch();
-  const { signUpLoading } = useSelector(({ user }: RootState) => user);
+  const { signUpLoading, signUpError, me } = useSelector(
+    ({ user }: RootState) => user
+  );
   const [email, onChangeEmail, setEmail] = useInput("");
   const [nickname, onChangeNickname, setNickname] = useInput("");
   const [password, onChangePassword, setPassword] = useInput("");
@@ -54,6 +57,18 @@ const Signup = () => {
     );
     console.log(email, nickname, password);
   }, [email, passwordCheck, passwordCheck, term]);
+
+  useEffect(() => {
+    if (signUpError) {
+      alert("이미 등록된 유저 입니다.");
+    }
+  }, [signUpError]);
+
+  useEffect(() => {
+    if (me) {
+      Router.push("/");
+    }
+  }, [me]);
   return (
     <>
       <Head>
@@ -112,7 +127,7 @@ const Signup = () => {
             )}
           </div>
           <div style={{ marginTop: 10 }}>
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" htmlType="submit" loading={signUpLoading}>
               가입하기
             </Button>
           </div>
