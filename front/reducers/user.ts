@@ -70,7 +70,7 @@ export const signupAction = createAsyncAction(
   SIGN_UP_REQUEST,
   SIGN_UP_SUCCESS,
   SIGN_UP_FAILURE
-)<SignupParam, undefined, AxiosError>();
+)<SignupParam, SignupParam, AxiosError>();
 
 export const changeNicknameAction = createAsyncAction(
   CHANGE_NICKNAME_REQUEST,
