@@ -2,14 +2,14 @@ module.exports = (sequelize, DataTypes) => {
   const Image = sequelize.define(
     "Image",
     {
-      src: {
-        type: DataTypes.STRING(200),
+      content: {
+        type: DataTypes.TEXT,
         allowNull: false,
       },
     },
     {
-      charset: "utf8",
-      collate: "utf8_general_ci",
+      charset: "utf8mb4",
+      collate: "utf8mb4_general_ci",
     }
   );
   Image.associate = (db) => {

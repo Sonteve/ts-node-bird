@@ -1,6 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
   const Post = sequelize.define(
-    // id는 기본적으로 생성 (auto increase)
     "Post",
     {
       content: {
@@ -10,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       charset: "utf8mb4",
-      collate: "utf8mb4_general_ci", // 한글, 이모티콘까지 저장
+      collate: "utf8mb4_general_ci",
     }
   );
   Post.associate = (db) => {

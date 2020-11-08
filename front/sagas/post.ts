@@ -47,7 +47,6 @@ function addPostAPI(data: PostParam) {
 function* addPostSaga(action: ReturnType<typeof addPost.request>) {
   try {
     const result = yield call(addPostAPI, action.payload);
-
     yield put({
       type: ADD_POST_SUCCESS,
       payload: result.data,

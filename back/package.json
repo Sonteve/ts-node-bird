@@ -1,10 +1,10 @@
 {
-  "name": "back",
+  "name": "ts-node-bird-back",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
   "scripts": {
-    "dev": "nodemon --watch app.js"
+    "dev": "nodemon app"
   },
   "author": "Sonteve",
   "license": "ISC",

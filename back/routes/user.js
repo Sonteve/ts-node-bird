@@ -1,9 +1,54 @@
 const express = require("express");
+const { User, Post } = require("../models"); // db.User
+// 유저 비밀번호를 db에 그대로 저장하면 보안상 문제가 되기때문에 암호화를 위해 bcrypt라는 라이브러리 이용.
 const bcrypt = require("bcrypt");
-const { User, Post } = require("../models");
 const passport = require("passport");
-const { isLoggedIn, isNotLoggedIn } = require("./middlewares");
 const router = express.Router();
+const { isLoggedIn, isNotLoggedIn } = require("./middlewares");
+
+router.get("/", async (req, res, next) => {
+  try {
+    if (req.user) {
+      const fullUserWithoutPassword = await User.findOne({
+        where: {
+          id: req.user.id,
+        },
+        attributes: {
+          exclude: ["password"],
+        },
+        include: [
+          {
+            model: Post,
+            attributes: ["id"],
+          },
+          {
+            model: User,
+            as: "Followers",
+            attributes: ["id"],
+          },
+          {
+            model: User,
+            as: "Followings",
+            attributes: ["id"],
+          },
+        ],
+      });
+      return res.status(200).json(fullUserWithoutPassword);
+
+      /* const user = await User.findOne({
+        where: {
+          id: req.user.id,
+        },
+      }); */
+      return res.status(200).json(user);
+    } else {
+      return res.status(200).json(null);
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
 
 //로그인 유지
 router.get("/", async (req, res, next) => {
@@ -59,7 +104,8 @@ router.post("/", isNotLoggedIn, async (req, res, next) => {
       nickname,
       password: hashedPassword,
     });
-    res.status(201).send("ok");
+    console.dir(typeof user, { depth: 5 });
+    res.status(201).send(user);
   } catch (error) {
     console.error(error);
     next(error); // status 500 (server error)
@@ -104,7 +150,6 @@ router.post("/login", (req, res, next) => {
           },
         ],
       });
-
       return res.status(200).json(fullUserWithoutPassword);
     });
   })(req, res, next);

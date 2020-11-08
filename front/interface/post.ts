@@ -29,9 +29,9 @@ export interface Comment {
 }
 
 export interface CommentParam {
+  content: string;
   UserId: number;
   PostId: number;
-  content: string;
 }
 
 export interface LikeData {

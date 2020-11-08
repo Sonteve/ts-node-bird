@@ -1,6 +1,6 @@
-import { call, delay, put, takeLatest } from "redux-saga/effects";
+import { call, put, takeLatest } from "redux-saga/effects";
 import { FollowParam, LoginParam, SignupParam } from "../interface/user";
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import {
   LOG_IN_REQUEST,
   LOG_IN_SUCCESS,
@@ -110,8 +110,7 @@ function signUpAPI(data: SignupParam) {
 function* signUpSaga(action: ActionType<typeof signupAction.request>) {
   try {
     const result = yield call(signUpAPI, action.payload);
-    /* yield delay(1000); */
-    console.log("result", result);
+    console.log(result.data);
     yield put({
       type: SIGN_UP_SUCCESS,
     });

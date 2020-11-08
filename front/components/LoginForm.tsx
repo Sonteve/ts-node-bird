@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import Link from "next/link";
 import { Form, Input, Button } from "antd";
 import styled from "styled-components";
@@ -9,7 +9,9 @@ import useInput from "../hooks/useInput";
 
 const LoginForm = () => {
   const dispatch = useDispatch();
-  const { logInLoading } = useSelector(({ user }: RootState) => user);
+  const { logInLoading, logInError } = useSelector(
+    ({ user }: RootState) => user
+  );
   const [email, onChangeEmail, setEmail] = useInput("");
   const [password, setPassword] = useState<string>("");
 
@@ -29,6 +31,12 @@ const LoginForm = () => {
     },
     [email, password]
   );
+
+  useEffect(() => {
+    if (logInError) {
+      alert(logInError.response?.data);
+    }
+  }, [logInError]);
   return (
     <FormBlock onFinish={onSubmitForm}>
       <div>

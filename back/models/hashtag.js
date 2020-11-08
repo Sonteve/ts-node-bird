@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
     "Hashtag",
     {
       name: {
-        type: DataTypes.STRING(20),
+        type: DataTypes.TEXT,
         allowNull: false,
       },
     },

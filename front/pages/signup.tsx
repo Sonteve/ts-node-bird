@@ -59,16 +59,16 @@ const Signup = () => {
   }, [email, passwordCheck, passwordCheck, term]);
 
   useEffect(() => {
+    if (signUpError) {
+      alert("이미 등록된 유저 입니다.");
+    }
+  }, [signUpError]);
+
+  useEffect(() => {
     if (signUpDone) {
       Router.push("/");
     }
   }, [signUpDone]);
-
-  useEffect(() => {
-    if (signUpError) {
-      alert("이미 존재하는 아이디 입니다.");
-    }
-  }, [signUpError]);
 
   useEffect(() => {
     if (me && me.id) {
