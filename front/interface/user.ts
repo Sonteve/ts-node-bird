@@ -3,31 +3,19 @@ export interface LoginParam {
   password: string;
 }
 
-/* export interface UserData {
-  nickname: string,
-  id: number,
-  Posts: { id: number }[],
-  Followings: [
-    { id: shortId.generate(), nickname: "부기초" },
-    { id: shortId.generate(), nickname: "Chanho Lee" },
-    { id: shortId.generate(), nickname: "neue zeal" },
-  ],
-  Followers: [
-    { id: shortId.generate(), nickname: "부기초" },
-    { id: shortId.generate(), nickname: "Chanho Lee" },
-    { id: shortId.generate(), nickname: "neue zeal" },
-  ],
-} */
-
 export interface UserData {
-  Posts: { id: number | string }[];
+  id: number;
+  email: string;
   nickname: string;
-  id: number | string;
+  createdAt: Date;
+  updatedAt: Date;
+  Posts: { id: number }[];
   Followings: {
-    id: number | string;
-    nickname: string;
+    id: number;
+    nickname?: string;
   }[];
   Followers: {
+    id: number;
     nickname: string;
   }[];
 }
@@ -39,6 +27,10 @@ export interface SignupParam {
 }
 
 export interface FollowParam {
-  id: number | string;
+  id: number;
+}
+
+export interface User {
+  id: number;
   nickname: string;
 }

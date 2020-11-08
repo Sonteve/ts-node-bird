@@ -13,12 +13,12 @@ import Router from "next/router";
 
 const Signup = () => {
   const dispatch = useDispatch();
-  const { signUpLoading, signUpDone, signUpError } = useSelector(
+  const { signUpLoading, signUpDone, signUpError, me } = useSelector(
     ({ user }: RootState) => user
   );
-  const [email, onChangeEmail, setEmail] = useInput("");
-  const [nickname, onChangeNickname, setNickname] = useInput("");
-  const [password, onChangePassword, setPassword] = useInput("");
+  const [email, onChangeEmail] = useInput("");
+  const [nickname, onChangeNickname] = useInput("");
+  const [password, onChangePassword] = useInput("");
 
   const [passwordCheck, setPasswordCheck] = useState<string>("");
   const [passwordError, setPasswordError] = useState<boolean>(false);
@@ -69,6 +69,12 @@ const Signup = () => {
       alert("이미 존재하는 아이디 입니다.");
     }
   }, [signUpError]);
+
+  useEffect(() => {
+    if (me && me.id) {
+      Router.push("/");
+    }
+  }, [me, me?.id]);
   return (
     <>
       <Head>

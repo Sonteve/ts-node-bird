@@ -5,7 +5,8 @@ import { RootState } from "../reducers";
 import PostForm from "../components/PostForm";
 import PostCard from "../components/PostCard";
 import { media } from "../hooks/useMedia";
-import { loadPost } from "../reducers/post";
+import { loadPosts } from "../reducers/post";
+import { loadMyInfoAction } from "../reducers/user";
 
 const Home = () => {
   /* const [currentmedia] = useMedia(); */
@@ -17,7 +18,8 @@ const Home = () => {
     ({ post }: RootState) => post
   );
   useEffect(() => {
-    dispatch(loadPost.request());
+    dispatch(loadPosts.request());
+    dispatch(loadMyInfoAction.request());
   }, []);
 
   useEffect(() => {
@@ -32,7 +34,7 @@ const Home = () => {
         document.documentElement.scrollHeight - 300
       ) {
         if (hasMorePosts && !loadPostsLoading) {
-          dispatch(loadPost.request());
+          dispatch(loadPosts.request());
         }
       }
     }
@@ -48,7 +50,7 @@ const Home = () => {
         isPc : {`${isPc}`} <br /> isTablet : {`${isTablet}`}{" "}
       </div>
       {me && <PostForm />}
-      {mainPosts.map((post, index) => (
+      {mainPosts.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}
     </AppLayout>

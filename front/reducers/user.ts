@@ -13,7 +13,7 @@ import {
   SignupParam,
   UserData,
 } from "../interface/user";
-import { removePost } from "./post";
+import { REMOVE_POST_FAILURE } from "./post";
 export const LOG_IN_REQUEST = "LOG_IN_REQUEST";
 export const LOG_IN_SUCCESS = "LOG_IN_SUCCESS";
 export const LOG_IN_FAILURE = "LOG_IN_FAILURE";
@@ -38,11 +38,53 @@ export const CHANGE_NICKNAME_REQUEST = "CHANGE_NICKNAME_REQUEST";
 export const CHANGE_NICKNAME_SUCCESS = "CHANGE_NICKNAME_SUCCESS";
 export const CHANGE_NICKNAME_FAILURE = "CHANGE_NICKNAME_FAILURE";
 
+export const LOAD_MY_INFO_REQUEST = "LOAD_MY_INFO_REQUEST";
+export const LOAD_MY_INFO_SUCCESS = "LOAD_MY_INFO_SUCCESS";
+export const LOAD_MY_INFO_FAILURE = "LOAD_MY_INFO_FAILURE";
+
+export const LOAD_FOLLOWERS_REQUEST = "LOAD_FOLLOWERS_REQUEST";
+export const LOAD_FOLLOWERS_SUCCESS = "LOAD_FOLLOWERS_SUCCESS";
+export const LOAD_FOLLOWERS_FAILURE = "LOAD_FOLLOWERS_FAILURE";
+
+export const LOAD_FOLLOWINGS_REQUEST = "LOAD_FOLLOWINGS_REQUEST";
+export const LOAD_FOLLOWINGS_SUCCESS = "LOAD_FOLLOWINGS_SUCCESS";
+export const LOAD_FOLLOWINGS_FAILURE = "LOAD_FOLLOWINGS_FAILURE";
+
+export const REMOVE_FOLLOWER_REQUEST = "REMOVE_FOLLOWER_REQUEST";
+export const REMOVE_FOLLOWER_SUCCESS = "REMOVE_FOLLOWER_SUCCESS";
+export const REMOVE_FOLLOWER_FAILURE = "REMOVE_FOLLOWER_FAILURE";
+
+export const loadMyInfoAction = createAsyncAction(
+  LOAD_MY_INFO_REQUEST,
+  LOAD_MY_INFO_SUCCESS,
+  LOAD_MY_INFO_FAILURE
+)<undefined, UserData, AxiosError>();
+
+export const loadFollowings = createAsyncAction(
+  LOAD_FOLLOWINGS_REQUEST,
+  LOAD_FOLLOWINGS_SUCCESS,
+  LOAD_FOLLOWINGS_FAILURE
+)<undefined, { id: number; nickname: string }[], AxiosError>();
+
+export const loadFollowers = createAsyncAction(
+  LOAD_FOLLOWERS_REQUEST,
+  LOAD_FOLLOWERS_SUCCESS,
+  LOAD_FOLLOWERS_FAILURE
+)<undefined, { id: number; nickname: string }[], AxiosError>();
+
+export const removeFollower = createAsyncAction(
+  REMOVE_FOLLOWER_REQUEST,
+  REMOVE_FOLLOWER_SUCCESS,
+  REMOVE_FOLLOWER_FAILURE
+)<{ id: number }, { UserId: number }, AxiosError>();
+
 export const ADD_POST_TO_ME = "ADD_POST_TO_ME";
 export const addPostToMe = createAction(ADD_POST_TO_ME)<Post>();
 
 export const REMOVE_POST_OF_ME = "REMOVE_POST_OF_ME";
-export const removePostOfMe = createAction(REMOVE_POST_OF_ME)<{ id: number }>();
+export const removePostOfMe = createAction(REMOVE_POST_OF_ME)<{
+  PostId: number;
+}>();
 
 export const loginAction = createAsyncAction(
   LOG_IN_REQUEST,
@@ -66,19 +108,19 @@ export const changeNicknameAction = createAsyncAction(
   CHANGE_NICKNAME_REQUEST,
   CHANGE_NICKNAME_SUCCESS,
   CHANGE_NICKNAME_FAILURE
-)<string, string, AxiosError>();
+)<{ nickname: string }, { nickname: string }, AxiosError>();
 
 export const followAction = createAsyncAction(
   FOLLOW_REQUEST,
   FOLLOW_SUCCESS,
   FOLLOW_FAILURE
-)<FollowParam, FollowParam, AxiosError>();
+)<FollowParam, { id: number; nickname: string }, AxiosError>();
 
 export const unfollowAction = createAsyncAction(
   UNFOLLOW_REQUEST,
   UNFOLLOW_SUCCESS,
   UNFOLLOW_FAILURE
-)<FollowParam, FollowParam, AxiosError>();
+)<FollowParam, { id: number }, AxiosError>();
 
 type UserAction = ActionType<
   | typeof loginAction
@@ -89,6 +131,10 @@ type UserAction = ActionType<
   | typeof removePostOfMe
   | typeof followAction
   | typeof unfollowAction
+  | typeof loadMyInfoAction
+  | typeof loadFollowers
+  | typeof loadFollowings
+  | typeof removeFollower
 >;
 //f8901c8f24b809bc5cfe8eb80ea72569
 export interface UserState {
@@ -112,6 +158,18 @@ export interface UserState {
   unfollowLoading: boolean; // 회원가입 시도중
   unfollowDone: boolean;
   unfollowError: AxiosError | null;
+  loadMyInfoLoading: boolean; // 회원가입 시도중
+  loadMyInfoDone: boolean;
+  loadMyInfoError: AxiosError | null;
+  loadFollowersLoading: boolean; // 회원가입 시도중
+  loadFollowersDone: boolean;
+  loadFollowersError: AxiosError | null;
+  loadFollowingsLoading: boolean; // 회원가입 시도중
+  loadFollowingsDone: boolean;
+  loadFollowingsError: AxiosError | null;
+  removeFollowerLoading: boolean; // 회원가입 시도중
+  removeFollowerDone: boolean;
+  removeFollowerError: AxiosError | null;
 }
 
 const initialState: UserState = {
@@ -135,6 +193,18 @@ const initialState: UserState = {
   unfollowLoading: false,
   unfollowDone: false,
   unfollowError: null,
+  loadMyInfoLoading: false,
+  loadMyInfoDone: false,
+  loadMyInfoError: null,
+  loadFollowersLoading: false,
+  loadFollowersDone: false,
+  loadFollowersError: null,
+  loadFollowingsLoading: false,
+  loadFollowingsDone: false,
+  loadFollowingsError: null,
+  removeFollowerLoading: false,
+  removeFollowerDone: false,
+  removeFollowerError: null,
 };
 
 const user = createReducer<UserState, UserAction>(initialState, {
@@ -197,7 +267,7 @@ const user = createReducer<UserState, UserAction>(initialState, {
     produce(state, (draft) => {
       if (!draft.me) return;
       const index = draft.me.Posts.findIndex(
-        (post) => post.id === action.payload.id
+        (post) => post.id === action.payload.PostId
       );
       draft.me.Posts.splice(index, 1);
     }),
@@ -212,7 +282,7 @@ const user = createReducer<UserState, UserAction>(initialState, {
       draft.changeNicknameLoading = false;
       draft.changeNicknameDone = true;
       if (!draft.me) return;
-      draft.me.nickname = action.payload;
+      draft.me.nickname = action.payload.nickname;
     }),
   [CHANGE_NICKNAME_FAILURE]: (state, action) =>
     produce(state, (draft) => {
@@ -250,7 +320,7 @@ const user = createReducer<UserState, UserAction>(initialState, {
       draft.unfollowDone = true;
       if (!draft.me) return;
       const index = draft.me.Followings.findIndex(
-        (v) => v.nickname === action.payload.nickname
+        (v) => v.id === action.payload.id
       );
       draft.me.Followings.splice(index, 1);
     }),
@@ -258,6 +328,80 @@ const user = createReducer<UserState, UserAction>(initialState, {
     produce(state, (draft) => {
       draft.unfollowLoading = false;
       draft.unfollowError = action.payload;
+    }),
+  [LOAD_MY_INFO_REQUEST]: (state, action) =>
+    produce(state, (draft) => {
+      draft.loadMyInfoLoading = true;
+      draft.loadMyInfoError = null;
+      draft.loadMyInfoDone = false;
+    }),
+  [LOAD_MY_INFO_SUCCESS]: (state, action) =>
+    produce(state, (draft) => {
+      draft.me = action.payload;
+      draft.loadMyInfoLoading = false;
+      draft.loadMyInfoDone = true;
+    }),
+  [LOAD_MY_INFO_FAILURE]: (state, action) =>
+    produce(state, (draft) => {
+      draft.loadMyInfoLoading = false;
+      draft.loadMyInfoError = action.payload;
+    }),
+  [LOAD_FOLLOWERS_REQUEST]: (state, action) =>
+    produce(state, (draft) => {
+      draft.loadFollowersLoading = true;
+      draft.loadFollowersError = null;
+      draft.loadFollowersDone = false;
+    }),
+  [LOAD_FOLLOWERS_SUCCESS]: (state, action) =>
+    produce(state, (draft) => {
+      if (!draft.me) return;
+      draft.me.Followers = action.payload;
+      draft.loadFollowersLoading = false;
+      draft.loadFollowersDone = true;
+    }),
+  [LOAD_FOLLOWERS_FAILURE]: (state, action) =>
+    produce(state, (draft) => {
+      draft.loadFollowersLoading = false;
+      draft.loadFollowersError = action.payload;
+    }),
+  [LOAD_FOLLOWINGS_REQUEST]: (state, action) =>
+    produce(state, (draft) => {
+      draft.loadFollowingsLoading = true;
+      draft.loadFollowingsError = null;
+      draft.loadFollowingsDone = false;
+    }),
+  [LOAD_FOLLOWINGS_SUCCESS]: (state, action) =>
+    produce(state, (draft) => {
+      if (!draft.me) return;
+      draft.me.Followings = action.payload;
+      draft.loadFollowingsLoading = false;
+      draft.loadFollowingsDone = true;
+    }),
+  [LOAD_FOLLOWINGS_FAILURE]: (state, action) =>
+    produce(state, (draft) => {
+      draft.loadFollowingsLoading = false;
+      draft.loadFollowingsError = action.payload;
+    }),
+  [REMOVE_FOLLOWER_REQUEST]: (state) =>
+    produce(state, (draft) => {
+      draft.removeFollowerLoading = true;
+      draft.removeFollowerError = null;
+      draft.removeFollowerDone = false;
+    }),
+  [REMOVE_FOLLOWER_SUCCESS]: (state, action) =>
+    produce(state, (draft) => {
+      draft.removeFollowerLoading = false;
+      draft.removeFollowerDone = true;
+      if (!draft.me) return;
+      const index = draft.me.Followers.findIndex(
+        (v) => v.id === action.payload.UserId
+      );
+      draft.me.Followers.splice(index, 1);
+    }),
+  [REMOVE_FOLLOWER_FAILURE]: (state, action) =>
+    produce(state, (draft) => {
+      draft.removeFollowerLoading = false;
+      draft.removeFollowerError = action.payload;
     }),
 });
 

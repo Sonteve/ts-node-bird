@@ -8,15 +8,16 @@ import {
 import { Button, Card, Popover, List, Comment } from "antd";
 import Avatar from "antd/lib/avatar/avatar";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Post } from "../interface/post";
 import { RootState } from "../reducers";
 import PostImages from "../components/PostImages";
 import CommentForm from "./CommentForm";
 import PostCardContent from "./PostCardContent";
-import { removePost } from "../reducers/post";
+import { likePost, removePost, unLikePost } from "../reducers/post";
 import FollowButton from "./FollowButton";
+import { media } from "../hooks/useMedia";
 
 interface Props {
   post: Post;
@@ -25,11 +26,17 @@ interface Props {
 const PostCard = ({ post }: Props) => {
   const dispatch = useDispatch();
   const id = useSelector(({ user }: RootState) => user.me?.id);
-  const [liked, setLiked] = useState<boolean>(false);
   const [commentFormOpened, setCommentFormOpened] = useState<boolean>(false);
-  const onToggleLike = useCallback(() => {
+  const liked = post.Likers.find((v) => v.id === id);
+  const onLike = useCallback(() => {
     if (!id) return;
-    setLiked((prev) => !prev);
+    console.log("좋아요 요청");
+    dispatch(likePost.request({ postId: post.id }));
+  }, []);
+  const onUnLike = useCallback(() => {
+    if (!id) return;
+    console.log("좋아요 해제 요청");
+    dispatch(unLikePost.request({ postId: post.id }));
   }, []);
   const onToggleComment = useCallback(() => {
     setCommentFormOpened((prev) => !prev);
@@ -37,7 +44,7 @@ const PostCard = ({ post }: Props) => {
 
   const onClikeRemovePost = useCallback(() => {
     if (!id) return;
-    dispatch(removePost.request({ id }));
+    dispatch(removePost.request({ postId: post.id }));
   }, []);
 
   return (
@@ -49,11 +56,11 @@ const PostCard = ({ post }: Props) => {
           liked ? (
             <HeartTwoTone
               twoToneColor="#eb2f96"
-              onClick={onToggleLike}
+              onClick={onUnLike}
               key="heart"
             />
           ) : (
-            <HeartOutlined key="heart" onClick={onToggleLike} />
+            <HeartOutlined key="heart" onClick={onLike} />
           ),
           <MessageOutlined key="comment" onClick={onToggleComment} />,
           <Popover
@@ -76,7 +83,7 @@ const PostCard = ({ post }: Props) => {
             <EllipsisOutlined />
           </Popover>,
         ]}
-        extra={id && <FollowButton post={post} />}
+        extra={id && id !== post.UserId && <FollowButton post={post} />}
       >
         <Card.Meta
           avatar={<Avatar>{post.User.nickname[0]}</Avatar>}

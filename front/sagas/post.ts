@@ -22,45 +22,40 @@ import {
   removePost,
   REMOVE_POST_SUCCESS,
   REMOVE_POST_FAILURE,
-  loadPost,
+  loadPosts,
   LOAD_POSTS_SUCCESS,
   LOAD_POSTS_FAILURE,
   LOAD_POSTS_REQUEST,
+  likePost,
+  LIKE_POST_SUCCESS,
+  LIKE_POST_FAILURE,
+  unLikePost,
+  UNLIKE_POST_SUCCESS,
+  UNLIKE_POST_FAILURE,
+  LIKE_POST_REQUEST,
+  UNLIKE_POST_REQUEST,
 } from "../reducers/post";
-import { Post } from "../interface/post";
+import { CommentParam, Post, PostParam } from "../interface/post";
 import { ADD_POST_TO_ME, REMOVE_POST_OF_ME } from "../reducers/user";
+import axios from "axios";
+import PostImages from "../components/PostImages";
 
-/* function loginAPI(data: LoginParam) {
-  return axios.get("/api/login");
-} */
-
-let tempId = 2;
+function addPostAPI(data: PostParam) {
+  return axios.post("/post", data);
+}
 
 function* addPostSaga(action: ReturnType<typeof addPost.request>) {
   try {
-    const { id, nickname, content } = action.payload;
-    /* const result = yield call(loginAPI, action.payload); */
-    yield delay(1000);
-    const dummyPost: Post = {
-      id: tempId,
-      User: {
-        id,
-        nickname,
-      },
-      content,
-      Images: [],
-      Comments: [],
-      createdAt: "2020-10-28",
-    };
+    const result = yield call(addPostAPI, action.payload);
+
     yield put({
       type: ADD_POST_SUCCESS,
-      payload: dummyPost,
+      payload: result.data,
     });
     yield put({
       type: ADD_POST_TO_ME,
-      payload: { id: tempId },
+      payload: { id: result.data.id },
     });
-    tempId++;
   } catch (err) {
     console.error(err.response.data);
     yield put({
@@ -70,23 +65,58 @@ function* addPostSaga(action: ReturnType<typeof addPost.request>) {
   }
 }
 
+function likePostAPI(data: { postId: number }) {
+  return axios.patch(`/post/${data.postId}/like`);
+}
+
+function* likePostSaga(action: ReturnType<typeof likePost.request>) {
+  try {
+    const result = yield call(likePostAPI, action.payload);
+
+    yield put({
+      type: LIKE_POST_SUCCESS,
+      payload: result.data,
+    });
+  } catch (err) {
+    console.error(err.response.data);
+    yield put({
+      type: LIKE_POST_FAILURE,
+      payload: err,
+    });
+  }
+}
+
+function unlikePostAPI(data: { postId: number }) {
+  return axios.delete(`/post/${data.postId}/like`);
+}
+
+function* unlikePostSaga(action: ReturnType<typeof unLikePost.request>) {
+  try {
+    const result = yield call(unlikePostAPI, action.payload);
+
+    yield put({
+      type: UNLIKE_POST_SUCCESS,
+      payload: result.data,
+    });
+  } catch (err) {
+    console.error(err.response.data);
+    yield put({
+      type: UNLIKE_POST_FAILURE,
+      payload: err,
+    });
+  }
+}
+
+function addCommentAPI(data: CommentParam) {
+  return axios.post(`/post/${data.PostId}/comment`, data);
+}
+
 function* addCommentSaga(action: ReturnType<typeof addComment.request>) {
   try {
-    const { userId, postId, nickname, content } = action.payload;
-    /* const result = yield call(loginAPI, action.payload); */
-    yield delay(1000);
+    const result = yield call(addCommentAPI, action.payload);
     yield put({
       type: ADD_COMMENT_SUCCESS,
-      payload: {
-        commentData: {
-          User: {
-            id: userId,
-            nickname,
-          },
-          content,
-        },
-        postId,
-      },
+      payload: result.data,
     });
   } catch (err) {
     console.error(err.response.data);
@@ -97,22 +127,21 @@ function* addCommentSaga(action: ReturnType<typeof addComment.request>) {
   }
 }
 
+function removePostAPI(data: { postId: number }) {
+  return axios.delete(`/post/${data.postId}`);
+}
+
 function* removePostSaga(action: ReturnType<typeof removePost.request>) {
   try {
-    const { id } = action.payload;
-    /* const result = yield call(loginAPI, action.payload); */
-    yield delay(1000);
+    /* const { id } = action.payload; */
+    const result = yield call(removePostAPI, action.payload);
     yield put({
       type: REMOVE_POST_SUCCESS,
-      payload: {
-        id,
-      },
+      payload: result.data,
     });
     yield put({
       type: REMOVE_POST_OF_ME,
-      payload: {
-        id,
-      },
+      payload: result.data,
     });
   } catch (err) {
     console.error(err.response.data);
@@ -123,40 +152,17 @@ function* removePostSaga(action: ReturnType<typeof removePost.request>) {
   }
 }
 
-export const generateDummyPost = (number: number) =>
-  Array(number)
-    .fill(null)
-    .map((v, i) => ({
-      id: shortId.generate(),
-      User: {
-        id: shortId.generate(),
-        nickname: shortId.generate(),
-      },
-      content: faker.lorem.paragraph(),
-      Images: [
-        {
-          src: faker.image.image(),
-        },
-      ],
-      Comments: [
-        {
-          User: {
-            id: shortId.generate(),
-            nickname: faker.name.findName(),
-          },
-          content: faker.lorem.sentence(),
-        },
-      ],
-      createdAt: "2020-10-29",
-    }));
+function loadPostsAPI() {
+  return axios.get("/posts");
+}
 
-function* loadPostsSaga(action: ReturnType<typeof loadPost.request>) {
+function* loadPostsSaga(action: ReturnType<typeof loadPosts.request>) {
   try {
-    /* const result = yield call(loginAPI, action.payload); */
+    const result = yield call(loadPostsAPI);
     yield delay(1000);
     yield put({
       type: LOAD_POSTS_SUCCESS,
-      payload: generateDummyPost(10),
+      payload: result.data,
     });
   } catch (err) {
     console.error(err.response.data);
@@ -172,4 +178,6 @@ export default function* postSaga() {
   yield takeLatest(ADD_COMMENT_REQUEST, addCommentSaga);
   yield takeLatest(REMOVE_POST_REQUEST, removePostSaga);
   yield takeLatest(LOAD_POSTS_REQUEST, loadPostsSaga);
+  yield takeLatest(LIKE_POST_REQUEST, likePostSaga);
+  yield takeLatest(UNLIKE_POST_REQUEST, unlikePostSaga);
 }

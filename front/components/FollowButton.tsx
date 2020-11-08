@@ -15,9 +15,7 @@ const FollowButton = ({ post }: Props) => {
   const { me } = useSelector(({ user }: RootState) => user);
 
   useEffect(() => {
-    setIsFollowing(
-      me?.Followings.find((v) => v.nickname === post.User.nickname)
-    );
+    setIsFollowing(me?.Followings.find((v) => v.id === post.UserId));
   }, [me?.Followings]);
 
   /*   const isFollowing = useRef<FollowParam | undefined>();
@@ -28,13 +26,10 @@ const FollowButton = ({ post }: Props) => {
       dispatch(
         unfollowAction.request({
           id: post.User.id,
-          nickname: post.User.nickname,
         })
       );
     } else {
-      dispatch(
-        followAction.request({ id: post.User.id, nickname: post.User.nickname })
-      );
+      dispatch(followAction.request({ id: post.User.id }));
     }
   }, [isFollowing]);
   return (

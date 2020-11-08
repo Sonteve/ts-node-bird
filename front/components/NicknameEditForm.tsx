@@ -2,6 +2,8 @@ import React, { useCallback, useState } from "react";
 import { Input, Form } from "antd";
 import styled from "styled-components";
 import useInput from "../hooks/useInput";
+import { useDispatch } from "react-redux";
+import { changeNicknameAction } from "../reducers/user";
 
 const FormBlock = styled(Form)`
   margin-bottom: 20px;
@@ -10,16 +12,18 @@ const FormBlock = styled(Form)`
 `;
 
 const NicknameEditForm = () => {
+  const dispatch = useDispatch();
   const [nickname, onChangeNickname] = useInput("");
   const onSubmitNickname = useCallback(() => {
-    console.log("submit", nickname);
-  }, []);
+    dispatch(changeNicknameAction.request({ nickname }));
+  }, [nickname]);
   return (
-    <FormBlock onFinish={onSubmitNickname}>
+    <FormBlock>
       <Input.Search
         addonBefore="닉네임"
         enterButton="수정"
         onChange={onChangeNickname}
+        onSearch={onSubmitNickname}
       />
     </FormBlock>
   );

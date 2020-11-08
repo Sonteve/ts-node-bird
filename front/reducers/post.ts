@@ -8,8 +8,8 @@ import {
 } from "typesafe-actions";
 import {
   Comment,
-  CommentData,
   CommentParam,
+  LikeData,
   Post,
   PostParam,
 } from "../interface/post";
@@ -31,6 +31,12 @@ export interface PostState {
   loadPostsLoading: boolean;
   loadPostsDone: boolean;
   loadPostsError: AxiosError | null;
+  likePostLoading: boolean;
+  likePostDone: boolean;
+  likePostError: AxiosError | null;
+  unLikePostLoading: boolean;
+  unLikePostDone: boolean;
+  unLikePostError: AxiosError | null;
   hasMorePosts: boolean;
 }
 
@@ -50,10 +56,14 @@ const initialState: PostState = {
   loadPostsLoading: false,
   loadPostsDone: false,
   loadPostsError: null,
+  likePostLoading: false,
+  likePostDone: false,
+  likePostError: null,
+  unLikePostLoading: false,
+  unLikePostDone: false,
+  unLikePostError: null,
   hasMorePosts: true,
 };
-
-let tempId = 2;
 
 export const ADD_POST_REQUEST = "ADD_POST_REQUEST";
 export const ADD_POST_SUCCESS = "ADD_POST_SUCCESS";
@@ -72,7 +82,7 @@ export const addComment = createAsyncAction(
   ADD_COMMENT_REQUEST,
   ADD_COMMENT_SUCCESS,
   ADD_COMMENT_FAILURE
-)<CommentParam, CommentData, AxiosError>();
+)<CommentParam, Comment, AxiosError>();
 
 export const REMOVE_POST_REQUEST = "REMOVE_POST_REQUEST";
 export const REMOVE_POST_SUCCESS = "REMOVE_POST_SUCCESS";
@@ -81,22 +91,89 @@ export const removePost = createAsyncAction(
   REMOVE_POST_REQUEST,
   REMOVE_POST_SUCCESS,
   REMOVE_POST_FAILURE
-)<{ id: number | string }, { id: number | string }, AxiosError>();
+)<{ postId: number }, { PostId: number }, AxiosError>();
+
+export const LIKE_POST_REQUEST = "LIKE_POST_REQUEST";
+export const LIKE_POST_SUCCESS = "LIKE_POST_SUCCESS";
+export const LIKE_POST_FAILURE = "LIKE_POST_FAILURE";
+
+export const likePost = createAsyncAction(
+  LIKE_POST_REQUEST,
+  LIKE_POST_SUCCESS,
+  LIKE_POST_FAILURE
+)<{ postId: number }, LikeData, AxiosError>();
+
+export const UNLIKE_POST_REQUEST = "UNLIKE_POST_REQUEST";
+export const UNLIKE_POST_SUCCESS = "UNLIKE_POST_SUCCESS";
+export const UNLIKE_POST_FAILURE = "UNLIKE_POST_FAILURE";
+
+export const unLikePost = createAsyncAction(
+  UNLIKE_POST_REQUEST,
+  UNLIKE_POST_SUCCESS,
+  UNLIKE_POST_FAILURE
+)<{ postId: number }, LikeData, AxiosError>();
 
 export const LOAD_POSTS_REQUEST = "LOAD_POSTS_REQUEST";
 export const LOAD_POSTS_SUCCESS = "LOAD_POSTS_SUCCESS";
 export const LOAD_POSTS_FAILURE = "LOAD_POSTS_FAILURE";
-export const loadPost = createAsyncAction(
+export const loadPosts = createAsyncAction(
   LOAD_POSTS_REQUEST,
   LOAD_POSTS_SUCCESS,
   LOAD_POSTS_FAILURE
 )<undefined, Post[], AxiosError>();
 
 type PostAction = ActionType<
-  typeof addPost | typeof addComment | typeof removePost | typeof loadPost
+  | typeof addPost
+  | typeof addComment
+  | typeof removePost
+  | typeof loadPosts
+  | typeof likePost
+  | typeof unLikePost
 >;
 
 const post = createReducer<PostState, PostAction>(initialState, {
+  [LIKE_POST_REQUEST]: (state) =>
+    produce(state, (draft) => {
+      draft.likePostDone = false;
+      draft.likePostLoading = true;
+    }),
+  [LIKE_POST_SUCCESS]: (state, action) =>
+    produce(state, (draft) => {
+      const post = draft.mainPosts.find((v) => v.id === action.payload.PostId);
+      if (!post) return;
+      post.Likers.push({ id: action.payload.UserId });
+      draft.likePostLoading = false;
+      draft.likePostDone = true;
+
+      /* draft.mainPosts.unshift(action.payload); */
+    }),
+  [LIKE_POST_FAILURE]: (state, action) =>
+    produce(state, (draft) => {
+      draft.likePostLoading = false;
+      draft.likePostError = action.payload;
+    }),
+  [UNLIKE_POST_REQUEST]: (state) =>
+    produce(state, (draft) => {
+      draft.unLikePostDone = false;
+      draft.unLikePostLoading = true;
+    }),
+  [UNLIKE_POST_SUCCESS]: (state, action) =>
+    produce(state, (draft) => {
+      const post = draft.mainPosts.find((v) => v.id === action.payload.PostId);
+      if (!post) return;
+      const index = post.Likers.findIndex(
+        (v) => v.id === action.payload.UserId
+      );
+      post.Likers.splice(index, 1);
+      draft.unLikePostLoading = false;
+      draft.unLikePostDone = true;
+      /* draft.mainPosts.unshift(action.payload); */
+    }),
+  [UNLIKE_POST_FAILURE]: (state, action) =>
+    produce(state, (draft) => {
+      draft.unLikePostLoading = false;
+      draft.unLikePostError = action.payload;
+    }),
   [ADD_POST_REQUEST]: (state) =>
     produce(state, (draft) => {
       draft.addPostDone = false;
@@ -107,7 +184,6 @@ const post = createReducer<PostState, PostAction>(initialState, {
       draft.addPostLoading = false;
       draft.addPostDone = true;
       draft.mainPosts.unshift(action.payload);
-      tempId++;
     }),
   [ADD_POST_FAILURE]: (state, action) =>
     produce(state, (draft) => {
@@ -123,12 +199,8 @@ const post = createReducer<PostState, PostAction>(initialState, {
     produce(state, (draft) => {
       draft.addCommentLoading = false;
       draft.addCommentDone = true;
-      const index = state.mainPosts.findIndex(
-        (post) => post.id === action.payload.postId
-      );
-      draft.mainPosts[index].Comments.push(action.payload.commentData);
-
-      tempId++;
+      const post = draft.mainPosts.find((v) => v.id === action.payload.PostId);
+      post?.Comments.unshift(action.payload);
     }),
   [ADD_COMMENT_FAILURE]: (state, action) =>
     produce(state, (draft) => {
@@ -145,7 +217,7 @@ const post = createReducer<PostState, PostAction>(initialState, {
       draft.removePostLoading = false;
       draft.removePostDone = true;
       const index = state.mainPosts.findIndex(
-        (post) => post.id === action.payload.id
+        (post) => post.id === action.payload.PostId
       );
       draft.mainPosts.splice(index, 1);
     }),

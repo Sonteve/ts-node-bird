@@ -23,9 +23,8 @@ const CommentForm = ({ post }: Props) => {
     dispatch(
       addComment.request({
         content: commentText,
-        postId: post.id,
-        userId: me.id,
-        nickname: me.nickname,
+        PostId: post.id,
+        UserId: me.id,
       })
     );
   }, [commentText, me]);
