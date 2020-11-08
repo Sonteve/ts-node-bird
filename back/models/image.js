@@ -2,7 +2,7 @@ module.exports = (sequelize, DataTypes) => {
   const Image = sequelize.define(
     "Image",
     {
-      content: {
+      src: {
         type: DataTypes.TEXT,
         allowNull: false,
       },

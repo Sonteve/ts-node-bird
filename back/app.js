@@ -43,7 +43,7 @@ if (process.env.NODE_ENV === "production") {
 // 라우터에 걸리면 미들웨어가 종료되기때문에 상단에 위치시켜준다.
 
 //  app.use("/", express.static(path.join(__dirname, "uploads")));  => localhost:3065/이미지파일.png (프론트에서 서버쪽 폴더구조 모르게할 수 있다.)
-app.use("/", express.static(path.join(__dirname, "uploads"))); // __dirname(back)과 uploads경로를 합쳐준다. 운영체제 마다 경로가 차이나기때문에 path.join을쓴다.
+app.use("/", express.static(path.join(__dirname, "uploads"))); // __dirname(back)과 uploads경로를 합쳐준다. 운영체제 마다 경로가 차이나기때문에 path.join을쓴다.(/ or \)
 app.use(express.json()); // json으로 넘어오는 데이터를 해석 해서  req.body에 넣어준다. (axio를 통해 받을때)
 app.use(express.urlencoded({ extended: true })); // form submit시의 데이터를 해석해서 req.body에 넣어 준다 .  (일반 form데이터를 받을때)
 /*쿠키에 랜덤한 문자열 정보를 넘기고 브라우저에서 서버로 요청할때 
