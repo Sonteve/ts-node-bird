@@ -1,6 +1,6 @@
 const Sequelize = require("sequelize");
 const env = process.env.NODE_ENV || "development"; // NODE_ENV 환경변수가 없을때는 기본적으로 development db로 설정.
-const config = require("../config/config.json")[env]; // 가져온 cofig객체에서 env에 해당하는 config설정값 가져옴
+const config = require("../config/config.js")[env]; // 가져온 cofig객체에서 env에 해당하는 config설정값 가져옴
 const db = {}; // model을 담아서 export해서 다른 파일에서 쓸 db객체 생성
 
 // config의 정보를 받아서 sequelize가 mysql2에 넘기면 그 config정보에 해당하는mysql db를 node와 연결시킴.
