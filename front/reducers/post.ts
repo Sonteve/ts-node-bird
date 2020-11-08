@@ -37,6 +37,12 @@ export interface PostState {
   unLikePostLoading: boolean;
   unLikePostDone: boolean;
   unLikePostError: AxiosError | null;
+  uploadImagesLoading: boolean;
+  uploadImagesDone: boolean;
+  uploadImagesError: AxiosError | null;
+  removeImageLoading: boolean;
+  removeImageDone: boolean;
+  removeImageError: AxiosError | null;
   hasMorePosts: boolean;
 }
 
@@ -62,6 +68,12 @@ const initialState: PostState = {
   unLikePostLoading: false,
   unLikePostDone: false,
   unLikePostError: null,
+  uploadImagesLoading: false,
+  uploadImagesDone: false,
+  uploadImagesError: null,
+  removeImageLoading: false,
+  removeImageDone: false,
+  removeImageError: null,
   hasMorePosts: true,
 };
 
@@ -72,7 +84,7 @@ export const addPost = createAsyncAction(
   ADD_POST_REQUEST,
   ADD_POST_SUCCESS,
   ADD_POST_FAILURE
-)<PostParam, Post, AxiosError>();
+)<FormData, Post, AxiosError>();
 
 export const ADD_COMMENT_REQUEST = "ADD_COMMENT_REQUEST";
 export const ADD_COMMENT_SUCCESS = "ADD_COMMENT_SUCCESS";
@@ -122,6 +134,26 @@ export const loadPosts = createAsyncAction(
   LOAD_POSTS_FAILURE
 )<undefined, Post[], AxiosError>();
 
+export const UPLOAD_IMAGES_REQUEST = "UPLOAD_IMAGES_REQUEST";
+export const UPLOAD_IMAGES_SUCCESS = "UPLOAD_IMAGES_SUCCESS";
+export const UPLOAD_IMAGES_FAILURE = "UPLOAD_IMAGES_FAILURE";
+
+export const uploadImage = createAsyncAction(
+  UPLOAD_IMAGES_REQUEST,
+  UPLOAD_IMAGES_SUCCESS,
+  UPLOAD_IMAGES_FAILURE
+)<FormData, string[], AxiosError>();
+
+export const REMOVE_IMAGE_REQUEST = "REMOVE_IMAGE_REQUEST";
+export const REMOVE_IMAGE_SUCCESS = "REMOVE_IMAGE_SUCCESS";
+export const REMOVE_IMAGE_FAILURE = "REMOVE_IMAGE_FAILURE";
+
+export const removeImage = createAsyncAction(
+  REMOVE_IMAGE_REQUEST,
+  REMOVE_IMAGE_SUCCESS,
+  REMOVE_IMAGE_FAILURE
+)<{ filename: string }, { filename: string }, AxiosError>();
+
 type PostAction = ActionType<
   | typeof addPost
   | typeof addComment
@@ -129,6 +161,8 @@ type PostAction = ActionType<
   | typeof loadPosts
   | typeof likePost
   | typeof unLikePost
+  | typeof uploadImage
+  | typeof removeImage
 >;
 
 const post = createReducer<PostState, PostAction>(initialState, {
@@ -184,6 +218,7 @@ const post = createReducer<PostState, PostAction>(initialState, {
       draft.addPostLoading = false;
       draft.addPostDone = true;
       draft.mainPosts.unshift(action.payload);
+      draft.imagePaths = [];
     }),
   [ADD_POST_FAILURE]: (state, action) =>
     produce(state, (draft) => {
@@ -242,6 +277,42 @@ const post = createReducer<PostState, PostAction>(initialState, {
     produce(state, (draft) => {
       draft.loadPostsLoading = false;
       draft.loadPostsError = action.payload;
+    }),
+  [UPLOAD_IMAGES_REQUEST]: (state) =>
+    produce(state, (draft) => {
+      draft.uploadImagesDone = false;
+      draft.uploadImagesLoading = true;
+    }),
+  [UPLOAD_IMAGES_SUCCESS]: (state, action) =>
+    produce(state, (draft) => {
+      draft.imagePaths = action.payload;
+      draft.uploadImagesLoading = false;
+      draft.uploadImagesDone = true;
+    }),
+  [UPLOAD_IMAGES_FAILURE]: (state, action) =>
+    produce(state, (draft) => {
+      draft.uploadImagesLoading = false;
+      draft.uploadImagesError = action.payload;
+    }),
+  [REMOVE_IMAGE_REQUEST]: (state) =>
+    produce(state, (draft) => {
+      draft.removeImageDone = false;
+      draft.removeImageLoading = true;
+    }),
+  [REMOVE_IMAGE_SUCCESS]: (state, action) =>
+    produce(state, (draft) => {
+      console.log("이상하네?", action.payload.filename);
+      const index = draft.imagePaths.findIndex(
+        (v) => v === action.payload.filename
+      );
+      draft.imagePaths.splice(index, 1);
+      draft.removeImageLoading = false;
+      draft.removeImageDone = true;
+    }),
+  [REMOVE_IMAGE_FAILURE]: (state, action) =>
+    produce(state, (draft) => {
+      draft.removeImageLoading = false;
+      draft.removeImageError = action.payload;
     }),
 });
 

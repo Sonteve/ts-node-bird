@@ -1,7 +1,7 @@
 import { PlusOutlined } from "@ant-design/icons";
 import React, { useCallback, useState } from "react";
 import ImagesZoom from "./imagesZoom";
-
+import { host } from "../config/test";
 interface Props {
   images: {
     src: string;
@@ -24,7 +24,7 @@ const PostImages = ({ images }: Props) => {
           role="_presentation"
           // 클릭 할수는 있지만 클릭할 필요없다고 스크린리더가
           // 알아들음 => button이나 인풋아닌것에게 넣어주면 좋음
-          src={images[0].src}
+          src={host + images[0].src}
           alt={images[0].src}
           onClick={onZoom}
           style={{ width: "100%" }}
@@ -39,14 +39,16 @@ const PostImages = ({ images }: Props) => {
         <img
           role="_presentation"
           style={{ width: "50%" }}
-          src={images[0].src}
+          src={host + images[0].src}
           alt={images[0].src}
+          onClick={onZoom}
         />
         <img
           role="_presentation"
           style={{ width: "50%" }}
-          src={images[1].src}
+          src={host + images[1].src}
           alt={images[1].src}
+          onClick={onZoom}
         />
         {showImagesZoom && <ImagesZoom images={images} onClose={onClose} />}
       </div>
@@ -58,7 +60,7 @@ const PostImages = ({ images }: Props) => {
         <img
           role="_presentation"
           width="50%"
-          src={images[0].src}
+          src={host + images[0].src}
           alt={images[0].src}
           onClick={onZoom}
         />

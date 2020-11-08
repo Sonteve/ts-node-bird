@@ -9,6 +9,8 @@ import {
   ImageWrapper,
   Indicator,
 } from "./styles";
+import { host } from "../../config/test";
+
 interface Props {
   images: {
     src: string;
@@ -38,7 +40,7 @@ const ImagesZoom = ({ images, onClose }: Props) => {
           >
             {images.map((image) => (
               <ImageWrapper key={image.src}>
-                <img src={image.src} alt={image.src} />
+                <img src={host + image.src} alt={image.src} />
               </ImageWrapper>
             ))}
           </Slider>

@@ -1,9 +1,9 @@
 import { Button, Form, Input } from "antd";
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { ChangeEvent, useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import useInput from "../hooks/useInput";
 import { RootState } from "../reducers";
-import { addPost } from "../reducers/post";
+import { addPost, removeImage, uploadImage } from "../reducers/post";
 
 const PostForm = () => {
   const dispatch = useDispatch();
@@ -22,14 +22,42 @@ const PostForm = () => {
   }, [addPostDone]);
 
   const onSubmit = useCallback(() => {
-    if (!me) return;
+    if (!text || !text.trim()) {
+      return alert("게시글을 작성 해 주세요.");
+    }
+    const formData = new FormData();
+    imagePaths.forEach((imagePath) => formData.append("image", imagePath));
+    formData.append("content", text);
     console.log("text", text);
-    dispatch(addPost.request({ content: text }));
-  }, [me, text]);
+    dispatch(addPost.request(formData));
+  }, [text, imagePaths]);
 
-  const onUploadImage = useCallback(() => {
-    imageInput.current?.click();
-  }, [imageInput.current]);
+  const onUploadImage = useCallback(
+    (index) => {
+      imageInput.current?.click();
+    },
+    [imageInput.current]
+  );
+
+  const onRemoveImage = useCallback(
+    (i: number) => {
+      console.log(imagePaths[i]);
+      dispatch(removeImage.request({ filename: imagePaths[i] }));
+    },
+    [imagePaths]
+  );
+
+  const onChangeImages = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const file: FileList = e.target.files;
+    const imageFormData = new FormData();
+    console.log(imageFormData);
+    Array.from(e.target.files).forEach((f) => {
+      imageFormData.append("image", f);
+    });
+    dispatch(uploadImage.request(imageFormData));
+    console.log(imageFormData);
+  }, []);
   return (
     <Form
       style={{ margin: "10px 0 20px" }}
@@ -43,7 +71,14 @@ const PostForm = () => {
         placeholder="어떤 신기한 일이 있었나요?"
       />
       <div>
-        <input type="file" multiple hidden ref={imageInput} />
+        <input
+          name="image"
+          type="file"
+          multiple
+          hidden
+          ref={imageInput}
+          onChange={onChangeImages}
+        />
         <Button onClick={onUploadImage}>이미지 업로드</Button>
         <Button
           htmlType="submit"
@@ -55,11 +90,15 @@ const PostForm = () => {
         </Button>
       </div>
       <div>
-        {imagePaths.map((v) => (
+        {imagePaths.map((v, i) => (
           <div key={v} style={{ display: "inline-block" }}>
-            <img src={v} style={{ width: "200px" }} alt={v} />
+            <img
+              src={`http://localhost:3060/${v}`}
+              style={{ width: "200px" }}
+              alt={v}
+            />
             <div>
-              <Button>제거</Button>
+              <Button onClick={() => onRemoveImage(i)}>제거</Button>
             </div>
           </div>
         ))}

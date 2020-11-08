@@ -34,13 +34,21 @@ import {
   UNLIKE_POST_FAILURE,
   LIKE_POST_REQUEST,
   UNLIKE_POST_REQUEST,
+  uploadImage,
+  UPLOAD_IMAGES_SUCCESS,
+  UPLOAD_IMAGES_FAILURE,
+  UPLOAD_IMAGES_REQUEST,
+  removeImage,
+  REMOVE_IMAGE_SUCCESS,
+  REMOVE_IMAGE_FAILURE,
+  REMOVE_IMAGE_REQUEST,
 } from "../reducers/post";
 import { CommentParam, Post, PostParam } from "../interface/post";
 import { ADD_POST_TO_ME, REMOVE_POST_OF_ME } from "../reducers/user";
 import axios from "axios";
 import PostImages from "../components/PostImages";
 
-function addPostAPI(data: PostParam) {
+function addPostAPI(data: FormData) {
   return axios.post("/post", data);
 }
 
@@ -172,6 +180,47 @@ function* loadPostsSaga(action: ReturnType<typeof loadPosts.request>) {
   }
 }
 
+function uploadImageAPI(data: FormData) {
+  return axios.post("/post/images", data);
+}
+
+function* uploadImageSaga(action: ReturnType<typeof uploadImage.request>) {
+  try {
+    const result = yield call(uploadImageAPI, action.payload);
+    yield put({
+      type: UPLOAD_IMAGES_SUCCESS,
+      payload: result.data,
+    });
+  } catch (err) {
+    console.error(err.response.data);
+    yield put({
+      type: UPLOAD_IMAGES_FAILURE,
+      payload: err,
+    });
+  }
+}
+
+function removeImageAPI(data: { filename: string }) {
+  return axios.delete(`/post/image/${data.filename}`);
+}
+
+function* removeImageSaga(action: ReturnType<typeof removeImage.request>) {
+  try {
+    const result = yield call(removeImageAPI, action.payload);
+    console.log("removeImageSaga", result);
+    yield put({
+      type: REMOVE_IMAGE_SUCCESS,
+      payload: result.data,
+    });
+  } catch (err) {
+    console.error(err.response.data);
+    yield put({
+      type: REMOVE_IMAGE_FAILURE,
+      payload: err,
+    });
+  }
+}
+
 export default function* postSaga() {
   yield takeLatest(ADD_POST_REQUEST, addPostSaga);
   yield takeLatest(ADD_COMMENT_REQUEST, addCommentSaga);
@@ -179,4 +228,6 @@ export default function* postSaga() {
   yield takeLatest(LOAD_POSTS_REQUEST, loadPostsSaga);
   yield takeLatest(LIKE_POST_REQUEST, likePostSaga);
   yield takeLatest(UNLIKE_POST_REQUEST, unlikePostSaga);
+  yield takeLatest(UPLOAD_IMAGES_REQUEST, uploadImageSaga);
+  yield takeLatest(REMOVE_IMAGE_REQUEST, removeImageSaga);
 }
