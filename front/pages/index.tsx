@@ -12,10 +12,7 @@ import { END } from "redux-saga";
 import axios from "axios";
 
 const Home = () => {
-  /* const [currentmedia] = useMedia(); */
   const dispatch = useDispatch();
-  const { isPc, isTablet } = media();
-  console.log(isPc, isTablet);
   const { me } = useSelector(({ user }: RootState) => user);
   const {
     mainPosts,
@@ -23,14 +20,10 @@ const Home = () => {
     loadPostsLoading,
     addPostError,
   } = useSelector(({ post }: RootState) => post);
-  /* useEffect(() => {
-    dispatch(loadPosts.request({ lastId: undefined }));
-    dispatch(loadMyInfoAction.request());
-  }, []); */
 
   useEffect(() => {
     if (addPostError) {
-      return alert(addPostError.response?.data);
+      return alert(addPostError);
     }
   }, [addPostError]);
 
@@ -59,9 +52,6 @@ const Home = () => {
   }, [hasMorePosts, loadPostsLoading, mainPosts]);
   return (
     <AppLayout>
-      <div>
-        isPc : {`${isPc}`} <br /> isTablet : {`${isTablet}`}{" "}
-      </div>
       {me && <PostForm />}
       {mainPosts.map((post) => (
         <PostCard key={post.id} post={post} />

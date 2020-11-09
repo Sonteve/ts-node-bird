@@ -11,7 +11,7 @@ interface Props {
   children: ReactNode;
 }
 
-const GLobal = createGlobalStyle`
+const Global = createGlobalStyle`
   .ant-row {
     margin-right: 0 !important;
     margin-left: 0 !important;
@@ -26,15 +26,11 @@ const GLobal = createGlobalStyle`
   }
 `;
 
-const SearchInput = styled(Input.Search)`
-  vertical-align: middle;
-`;
-
 const AppLayout = ({ children }: Props) => {
   const { me } = useSelector(({ user }: RootState) => user);
   return (
     <div>
-      <GLobal />
+      <Global />
       <Menu mode="horizontal">
         <Menu.Item>
           <Link href="/">
@@ -47,7 +43,7 @@ const AppLayout = ({ children }: Props) => {
           </Link>
         </Menu.Item>
         <Menu.Item>
-          <SearchInput enterButton style={{ verticalAlign: "middle" }} />
+          <Input.Search enterButton style={{ verticalAlign: "middle" }} />
         </Menu.Item>
         <Menu.Item>
           <Link href="/signup">

@@ -32,7 +32,7 @@ const PostCard = ({ post }: Props) => {
   const dispatch = useDispatch();
   const id = useSelector(({ user }: RootState) => user.me?.id);
   const [commentFormOpened, setCommentFormOpened] = useState<boolean>(false);
-  const liked = post.Likers?.find((v) => v.id === id);
+  const liked = post.Likers.find((v) => v.id === id);
   const onLike = useCallback(() => {
     if (!id) return;
     console.log("좋아요 요청");

@@ -63,6 +63,12 @@ export const loadMyInfoAction = createAsyncAction(
   LOAD_MY_INFO_FAILURE
 )<undefined, UserData, Error>();
 
+export const loadUserAction = createAsyncAction(
+  LOAD_USER_REQUEST,
+  LOAD_USER_SUCCESS,
+  LOAD_USER_FAILURE
+)<{ UserId: number }, UserData, Error>();
+
 export const loadFollowings = createAsyncAction(
   LOAD_FOLLOWINGS_REQUEST,
   LOAD_FOLLOWINGS_SUCCESS,
@@ -125,12 +131,6 @@ export const unfollowAction = createAsyncAction(
   UNFOLLOW_FAILURE
 )<FollowParam, { id: number }, Error>();
 
-export const loadUser = createAsyncAction(
-  LOAD_USER_REQUEST,
-  LOAD_USER_SUCCESS,
-  LOAD_USER_FAILURE
-)<{ UserId: number }, UserData, Error>();
-
 type UserAction = ActionType<
   | typeof loginAction
   | typeof logoutAction
@@ -144,11 +144,12 @@ type UserAction = ActionType<
   | typeof loadFollowers
   | typeof loadFollowings
   | typeof removeFollower
-  | typeof loadUser
+  | typeof loadUserAction
 >;
 
 export interface UserState {
   me: UserData | null;
+  userInfo: UserData | null;
   signUpData: null;
   logInLoading: boolean; // 로그인 시도중
   logInDone: boolean;
@@ -187,6 +188,7 @@ export interface UserState {
 
 const initialState: UserState = {
   me: null,
+  userInfo: null,
   signUpData: null,
   logInLoading: false, // 로그인 시도중
   logInDone: false,
@@ -427,7 +429,7 @@ const user = createReducer<UserState, UserAction>(initialState, {
     }),
   [LOAD_USER_SUCCESS]: (state, action) =>
     produce(state, (draft) => {
-      draft.me = action.payload;
+      draft.userInfo = action.payload;
       draft.loadUserLoading = false;
       draft.loadUserDone = true;
     }),

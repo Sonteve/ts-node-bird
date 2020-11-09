@@ -50,9 +50,15 @@ import {
   LOAD_POST_SUCCESS,
   LOAD_POST_FAILURE,
   LOAD_POST_REQUEST,
+  loadUserPostsAction,
+  LOAD_USER_POSTS_REQUEST,
 } from "../reducers/post";
 import { CommentParam, Post, PostParam } from "../interface/post";
-import { ADD_POST_TO_ME, REMOVE_POST_OF_ME } from "../reducers/user";
+import {
+  ADD_POST_TO_ME,
+  loadUserAction,
+  REMOVE_POST_OF_ME,
+} from "../reducers/user";
 import axios from "axios";
 import PostImages from "../components/PostImages";
 
@@ -208,6 +214,31 @@ function* loadPostSaga(action: ReturnType<typeof loadPost.request>) {
   }
 }
 
+function loadUserPostsAPI(data: {
+  lastId: number | undefined;
+  UserId: number;
+}) {
+  return axios.get(`/user/${data.UserId}/post?lastId=${data.lastId || 0}`);
+}
+
+function* loadUserPostsSaga(
+  action: ReturnType<typeof loadUserPostsAction.request>
+) {
+  try {
+    const result = yield call(loadUserPostsAPI, action.payload);
+    yield put({
+      type: LOAD_POSTS_SUCCESS,
+      payload: result.data,
+    });
+  } catch (err) {
+    console.error(err.response.data);
+    yield put({
+      type: LOAD_POSTS_FAILURE,
+      payload: err.response.data,
+    });
+  }
+}
+
 function uploadImageAPI(data: FormData) {
   return axios.post("/post/images", data);
 }
@@ -284,4 +315,5 @@ export default function* postSaga() {
   yield takeLatest(UPLOAD_IMAGES_REQUEST, uploadImageSaga);
   yield takeLatest(REMOVE_IMAGE_REQUEST, removeImageSaga);
   yield takeLatest(LOAD_POST_REQUEST, loadPostSaga);
+  yield takeLatest(LOAD_USER_POSTS_REQUEST, loadUserPostsSaga);
 }

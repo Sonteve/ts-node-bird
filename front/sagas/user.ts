@@ -44,7 +44,7 @@ import {
   LOAD_USER_REQUEST,
   LOAD_USER_SUCCESS,
   LOAD_USER_FAILURE,
-  loadUser,
+  loadUserAction,
 } from "../reducers/user";
 import { ActionType } from "typesafe-actions";
 
@@ -254,7 +254,7 @@ function loadUserAPI(data: { UserId: number }) {
   return axios.get(`/user/${data.UserId}`);
 }
 
-function* loadUserSaga(action: ReturnType<typeof loadUser.request>) {
+function* loadUserSaga(action: ReturnType<typeof loadUserAction.request>) {
   try {
     const result = yield call(loadUserAPI, action.payload);
     yield put({

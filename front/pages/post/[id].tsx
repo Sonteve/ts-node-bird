@@ -33,7 +33,7 @@ const Post = () => {
                 content={
                   singlePost.Images[0]
                     ? singlePost.Images[0].src
-                    : "http://localhost:3050/favicon.ico"
+                    : "https://nodebird.com/favicon.ico"
                 }
               />
               <meta

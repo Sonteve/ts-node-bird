@@ -1,4 +1,16 @@
 {
   "presets": ["next/babel"],
-  "plugins": [["styled-components", { "ssr": true }]]
+  "plugins": [
+    [
+      "babel-plugin-styled-components",
+      {
+        "ssr": true,
+        "displayName": true
+      }
+    ]
+  ]
 }
+
+//styled-component ssr 가능하게해주고
+//개발자모드에서 클래스네임난독화 알아볼수있게해줌
+// babel-plugin-styled-components 모듈 설치

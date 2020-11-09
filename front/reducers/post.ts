@@ -150,6 +150,16 @@ export const loadPost = createAsyncAction(
   LOAD_POST_FAILURE
 )<{ PostId: number }, Post, Error>();
 
+export const LOAD_USER_POSTS_REQUEST = "LOAD_USER_POSTS_REQUEST";
+export const LOAD_USER_POSTS_SUCCESS = "LOAD_USER_POSTS_SUCCESS";
+export const LOAD_USER_POSTS_FAILURE = "LOAD_USER_POSTS_FAILURE";
+
+export const loadUserPostsAction = createAsyncAction(
+  LOAD_USER_POSTS_REQUEST,
+  LOAD_USER_POSTS_SUCCESS,
+  LOAD_USER_POSTS_FAILURE
+)<{ UserId: number; lastId: number | undefined }, Post[], Error>();
+
 export const UPLOAD_IMAGES_REQUEST = "UPLOAD_IMAGES_REQUEST";
 export const UPLOAD_IMAGES_SUCCESS = "UPLOAD_IMAGES_SUCCESS";
 export const UPLOAD_IMAGES_FAILURE = "UPLOAD_IMAGES_FAILURE";
@@ -190,6 +200,7 @@ type PostAction = ActionType<
   | typeof removeImage
   | typeof retweetPost
   | typeof loadPost
+  | typeof loadUserPostsAction
 >;
 
 const post = createReducer<PostState, PostAction>(initialState, {
@@ -373,6 +384,23 @@ const post = createReducer<PostState, PostAction>(initialState, {
     produce(state, (draft) => {
       draft.addPostLoading = false;
       draft.addPostError = action.payload;
+    }),
+  [LOAD_USER_POSTS_REQUEST]: (state) =>
+    produce(state, (draft) => {
+      draft.loadPostsDone = false;
+      draft.loadPostsLoading = true;
+    }),
+  [LOAD_USER_POSTS_SUCCESS]: (state, action) =>
+    produce(state, (draft) => {
+      draft.loadPostsLoading = false;
+      draft.loadPostsDone = true;
+      draft.mainPosts.push(...action.payload);
+      draft.hasMorePosts = action.payload.length === 10;
+    }),
+  [LOAD_USER_POSTS_FAILURE]: (state, action) =>
+    produce(state, (draft) => {
+      draft.loadPostsLoading = false;
+      draft.loadPostsError = action.payload;
     }),
 });
 
