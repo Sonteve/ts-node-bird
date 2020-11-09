@@ -1,10 +1,11 @@
 const express = require("express");
-const { User, Post } = require("../models"); // db.User
+const { User, Post, Comment, Image } = require("../models"); // db.User
 // 유저 비밀번호를 db에 그대로 저장하면 보안상 문제가 되기때문에 암호화를 위해 bcrypt라는 라이브러리 이용.
 const bcrypt = require("bcrypt");
 const passport = require("passport");
 const router = express.Router();
 const { isLoggedIn, isNotLoggedIn } = require("./middlewares");
+const { Op } = require("sequelize");
 
 //로그인 유지
 router.get("/", async (req, res, next) => {
@@ -273,6 +274,62 @@ router.get("/:userId", async (req, res, next) => {
     } else {
       return res.status(404).send("존재하지않는 사용자 입니다.");
     }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+router.get("/:userId/post", async (req, res, next) => {
+  try {
+    const user = await User.findOne({
+      where: { id: req.params.userId },
+    });
+
+    if (!user) {
+      return res.send(403).send("없는 유저입니다.");
+    }
+    const where = {};
+    if (parseInt(req.query.lastId, 10)) {
+      where.id = { [Op.lt]: parseInt(req.query.lastId, 10) };
+    }
+    const posts = await Post.findAll({
+      where: { UserId: user.id },
+      limit: 10,
+      order: [
+        ["createdAt", "DESC"],
+        [Comment, "createdAt", "DESC"],
+      ],
+      include: [
+        {
+          // 게시글의 이미지
+          model: Image,
+        },
+        {
+          // 게시글의 작성자
+          model: Comment,
+          include: [
+            {
+              // 게시글 작성자
+              model: User,
+              attributes: ["id", "nickname"],
+            },
+          ],
+        },
+        {
+          // 글 작성자 정보
+          model: User,
+          attributes: ["id", "nickname"],
+        },
+        {
+          // 좋아요 누른 사람
+          model: User,
+          as: "Likers",
+          attributes: ["id"],
+        },
+      ],
+    });
+    res.status(200).json(posts);
   } catch (error) {
     console.error(error);
     next(error);
