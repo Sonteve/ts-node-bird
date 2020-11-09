@@ -1,4 +1,3 @@
-import { AxiosError } from "axios";
 import produce from "immer";
 import {
   ActionType,
@@ -21,31 +20,32 @@ export interface PostState {
   imagePaths: string[]; // 미리보기 이미지 경로
   addPostLoading: boolean;
   addPostDone: boolean;
-  addPostError: AxiosError | null;
+  addPostError: Error | null;
   addCommentLoading: boolean;
   addCommentDone: boolean;
-  addCommentError: AxiosError | null;
+  addCommentError: Error | null;
   removePostLoading: boolean;
   removePostDone: boolean;
-  removePostError: AxiosError | null;
+  removePostError: Error | null;
   loadPostsLoading: boolean;
   loadPostsDone: boolean;
-  loadPostsError: AxiosError | null;
+  loadPostsError: Error | null;
+  singlePost: Post | null;
   loadPostLoading: boolean;
   loadPostDone: boolean;
-  loadPostError: AxiosError | null;
+  loadPostError: any | null;
   likePostLoading: boolean;
   likePostDone: boolean;
-  likePostError: AxiosError | null;
+  likePostError: Error | null;
   unLikePostLoading: boolean;
   unLikePostDone: boolean;
-  unLikePostError: AxiosError | null;
+  unLikePostError: Error | null;
   uploadImagesLoading: boolean;
   uploadImagesDone: boolean;
-  uploadImagesError: AxiosError | null;
+  uploadImagesError: Error | null;
   removeImageLoading: boolean;
   removeImageDone: boolean;
-  removeImageError: AxiosError | null;
+  removeImageError: Error | null;
   hasMorePosts: boolean;
 }
 
@@ -65,6 +65,7 @@ const initialState: PostState = {
   loadPostsLoading: false,
   loadPostsDone: false,
   loadPostsError: null,
+  singlePost: null,
   loadPostLoading: false,
   loadPostDone: false,
   loadPostError: null,
@@ -90,7 +91,7 @@ export const addPost = createAsyncAction(
   ADD_POST_REQUEST,
   ADD_POST_SUCCESS,
   ADD_POST_FAILURE
-)<FormData, Post, AxiosError>();
+)<FormData, Post, Error>();
 
 export const ADD_COMMENT_REQUEST = "ADD_COMMENT_REQUEST";
 export const ADD_COMMENT_SUCCESS = "ADD_COMMENT_SUCCESS";
@@ -100,7 +101,7 @@ export const addComment = createAsyncAction(
   ADD_COMMENT_REQUEST,
   ADD_COMMENT_SUCCESS,
   ADD_COMMENT_FAILURE
-)<CommentParam, Comment, AxiosError>();
+)<CommentParam, Comment, Error>();
 
 export const REMOVE_POST_REQUEST = "REMOVE_POST_REQUEST";
 export const REMOVE_POST_SUCCESS = "REMOVE_POST_SUCCESS";
@@ -109,7 +110,7 @@ export const removePost = createAsyncAction(
   REMOVE_POST_REQUEST,
   REMOVE_POST_SUCCESS,
   REMOVE_POST_FAILURE
-)<{ postId: number }, { PostId: number }, AxiosError>();
+)<{ postId: number }, { PostId: number }, Error>();
 
 export const LIKE_POST_REQUEST = "LIKE_POST_REQUEST";
 export const LIKE_POST_SUCCESS = "LIKE_POST_SUCCESS";
@@ -119,7 +120,7 @@ export const likePost = createAsyncAction(
   LIKE_POST_REQUEST,
   LIKE_POST_SUCCESS,
   LIKE_POST_FAILURE
-)<{ postId: number }, LikeData, AxiosError>();
+)<{ postId: number }, LikeData, Error>();
 
 export const UNLIKE_POST_REQUEST = "UNLIKE_POST_REQUEST";
 export const UNLIKE_POST_SUCCESS = "UNLIKE_POST_SUCCESS";
@@ -129,7 +130,7 @@ export const unLikePost = createAsyncAction(
   UNLIKE_POST_REQUEST,
   UNLIKE_POST_SUCCESS,
   UNLIKE_POST_FAILURE
-)<{ postId: number }, LikeData, AxiosError>();
+)<{ postId: number }, LikeData, Error>();
 
 export const LOAD_POSTS_REQUEST = "LOAD_POSTS_REQUEST";
 export const LOAD_POSTS_SUCCESS = "LOAD_POSTS_SUCCESS";
@@ -138,7 +139,7 @@ export const loadPosts = createAsyncAction(
   LOAD_POSTS_REQUEST,
   LOAD_POSTS_SUCCESS,
   LOAD_POSTS_FAILURE
-)<{ lastId: number | undefined }, Post[], AxiosError>();
+)<{ lastId: number | undefined }, Post[], Error>();
 
 export const LOAD_POST_REQUEST = "LOAD_POST_REQUEST";
 export const LOAD_POST_SUCCESS = "LOAD_POST_SUCCESS";
@@ -147,7 +148,7 @@ export const loadPost = createAsyncAction(
   LOAD_POST_REQUEST,
   LOAD_POST_SUCCESS,
   LOAD_POST_FAILURE
-)<{ PostId: number }, Post[], AxiosError>();
+)<{ PostId: number }, Post, Error>();
 
 export const UPLOAD_IMAGES_REQUEST = "UPLOAD_IMAGES_REQUEST";
 export const UPLOAD_IMAGES_SUCCESS = "UPLOAD_IMAGES_SUCCESS";
@@ -157,7 +158,7 @@ export const uploadImage = createAsyncAction(
   UPLOAD_IMAGES_REQUEST,
   UPLOAD_IMAGES_SUCCESS,
   UPLOAD_IMAGES_FAILURE
-)<FormData, string[], AxiosError>();
+)<FormData, string[], Error>();
 
 export const REMOVE_IMAGE_REQUEST = "REMOVE_IMAGE_REQUEST";
 export const REMOVE_IMAGE_SUCCESS = "REMOVE_IMAGE_SUCCESS";
@@ -167,7 +168,7 @@ export const removeImage = createAsyncAction(
   REMOVE_IMAGE_REQUEST,
   REMOVE_IMAGE_SUCCESS,
   REMOVE_IMAGE_FAILURE
-)<{ filename: string }, { filename: string }, AxiosError>();
+)<{ filename: string }, { filename: string }, Error>();
 export const RETWEET_POST_REQUEST = "RETWEET_POST_REQUEST";
 export const RETWEET_POST_SUCCESS = "RETWEET_POST_SUCCESS";
 export const RETWEET_POST_FAILURE = "RETWEET_POST_FAILURE";
@@ -176,7 +177,7 @@ export const retweetPost = createAsyncAction(
   RETWEET_POST_REQUEST,
   RETWEET_POST_SUCCESS,
   RETWEET_POST_FAILURE
-)<{ PostId: number }, Post, AxiosError>();
+)<{ PostId: number }, Post, Error>();
 
 type PostAction = ActionType<
   | typeof addPost
@@ -313,8 +314,7 @@ const post = createReducer<PostState, PostAction>(initialState, {
     produce(state, (draft) => {
       draft.loadPostLoading = false;
       draft.loadPostDone = true;
-      draft.mainPosts = action.payload;
-      draft.hasMorePosts = action.payload.length === 10;
+      draft.singlePost = action.payload;
     }),
   [LOAD_POST_FAILURE]: (state, action) =>
     produce(state, (draft) => {

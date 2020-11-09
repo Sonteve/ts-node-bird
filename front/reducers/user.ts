@@ -1,4 +1,3 @@
-import { AxiosError } from "axios";
 import produce from "immer";
 import {
   ActionType,
@@ -62,25 +61,25 @@ export const loadMyInfoAction = createAsyncAction(
   LOAD_MY_INFO_REQUEST,
   LOAD_MY_INFO_SUCCESS,
   LOAD_MY_INFO_FAILURE
-)<undefined, UserData, AxiosError>();
+)<undefined, UserData, Error>();
 
 export const loadFollowings = createAsyncAction(
   LOAD_FOLLOWINGS_REQUEST,
   LOAD_FOLLOWINGS_SUCCESS,
   LOAD_FOLLOWINGS_FAILURE
-)<undefined, { id: number; nickname: string }[], AxiosError>();
+)<undefined, { id: number; nickname: string }[], Error>();
 
 export const loadFollowers = createAsyncAction(
   LOAD_FOLLOWERS_REQUEST,
   LOAD_FOLLOWERS_SUCCESS,
   LOAD_FOLLOWERS_FAILURE
-)<undefined, { id: number; nickname: string }[], AxiosError>();
+)<undefined, { id: number; nickname: string }[], Error>();
 
 export const removeFollower = createAsyncAction(
   REMOVE_FOLLOWER_REQUEST,
   REMOVE_FOLLOWER_SUCCESS,
   REMOVE_FOLLOWER_FAILURE
-)<{ id: number }, { UserId: number }, AxiosError>();
+)<{ id: number }, { UserId: number }, Error>();
 
 export const ADD_POST_TO_ME = "ADD_POST_TO_ME";
 export const addPostToMe = createAction(ADD_POST_TO_ME)<Post>();
@@ -94,43 +93,43 @@ export const loginAction = createAsyncAction(
   LOG_IN_REQUEST,
   LOG_IN_SUCCESS,
   LOG_IN_FAILURE
-)<LoginParam, UserData, AxiosError>();
+)<LoginParam, UserData, Error>();
 
 export const logoutAction = createAsyncAction(
   LOG_OUT_REQUEST,
   LOG_OUT_SUCCESS,
   LOG_OUT_FAILURE
-)<undefined, undefined, AxiosError>();
+)<undefined, undefined, Error>();
 
 export const signupAction = createAsyncAction(
   SIGN_UP_REQUEST,
   SIGN_UP_SUCCESS,
   SIGN_UP_FAILURE
-)<SignupParam, SignupParam, AxiosError>();
+)<SignupParam, SignupParam, Error>();
 
 export const changeNicknameAction = createAsyncAction(
   CHANGE_NICKNAME_REQUEST,
   CHANGE_NICKNAME_SUCCESS,
   CHANGE_NICKNAME_FAILURE
-)<{ nickname: string }, { nickname: string }, AxiosError>();
+)<{ nickname: string }, { nickname: string }, Error>();
 
 export const followAction = createAsyncAction(
   FOLLOW_REQUEST,
   FOLLOW_SUCCESS,
   FOLLOW_FAILURE
-)<FollowParam, { id: number; nickname: string }, AxiosError>();
+)<FollowParam, { id: number; nickname: string }, Error>();
 
 export const unfollowAction = createAsyncAction(
   UNFOLLOW_REQUEST,
   UNFOLLOW_SUCCESS,
   UNFOLLOW_FAILURE
-)<FollowParam, { id: number }, AxiosError>();
+)<FollowParam, { id: number }, Error>();
 
 export const loadUser = createAsyncAction(
   LOAD_USER_REQUEST,
   LOAD_USER_SUCCESS,
   LOAD_USER_FAILURE
-)<{ UserId: number }, UserData, AxiosError>();
+)<{ UserId: number }, UserData, Error>();
 
 type UserAction = ActionType<
   | typeof loginAction
@@ -153,37 +152,37 @@ export interface UserState {
   signUpData: null;
   logInLoading: boolean; // 로그인 시도중
   logInDone: boolean;
-  logInError: AxiosError | null;
+  logInError: Error | null;
   logOutLoading: boolean; // 로그인 시도중
   logOutDone: boolean;
-  logOutError: AxiosError | null;
+  logOutError: Error | null;
   signUpLoading: boolean; // 회원가입 시도중
   signUpDone: boolean;
-  signUpError: AxiosError | null;
+  signUpError: Error | null;
   changeNicknameLoading: boolean; // 회원가입 시도중
   changeNicknameDone: boolean;
-  changeNicknameError: AxiosError | null;
+  changeNicknameError: Error | null;
   followLoading: boolean; // 회원가입 시도중
   followDone: boolean;
-  followError: AxiosError | null;
+  followError: Error | null;
   unfollowLoading: boolean; // 회원가입 시도중
   unfollowDone: boolean;
-  unfollowError: AxiosError | null;
+  unfollowError: Error | null;
   loadMyInfoLoading: boolean; // 회원가입 시도중
   loadMyInfoDone: boolean;
-  loadMyInfoError: AxiosError | null;
+  loadMyInfoError: Error | null;
   loadFollowersLoading: boolean; // 회원가입 시도중
   loadFollowersDone: boolean;
-  loadFollowersError: AxiosError | null;
+  loadFollowersError: Error | null;
   loadFollowingsLoading: boolean; // 회원가입 시도중
   loadFollowingsDone: boolean;
-  loadFollowingsError: AxiosError | null;
+  loadFollowingsError: Error | null;
   removeFollowerLoading: boolean; // 회원가입 시도중
   removeFollowerDone: boolean;
-  removeFollowerError: AxiosError | null;
+  removeFollowerError: Error | null;
   loadUserLoading: boolean; // 회원가입 시도중
   loadUserDone: boolean;
-  loadUserError: AxiosError | null;
+  loadUserError: Error | null;
 }
 
 const initialState: UserState = {

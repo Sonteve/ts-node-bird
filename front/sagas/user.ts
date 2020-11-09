@@ -63,7 +63,7 @@ function* loginSaga(action: ReturnType<typeof loginAction.request>) {
     console.error(err.response.data);
     yield put({
       type: LOG_IN_FAILURE,
-      payload: err,
+      payload: err.response.data,
     });
   }
 }
@@ -82,7 +82,7 @@ function* logoutSaga(action: ActionType<typeof logoutAction.request>) {
     console.error(err.response.data);
     yield put({
       type: LOG_OUT_FAILURE,
-      payload: err,
+      payload: err.response.data,
     });
   }
 }
@@ -102,7 +102,7 @@ function* loadMyInfoSaga(action: ReturnType<typeof loginAction.request>) {
     console.error(err.response.data);
     yield put({
       type: LOAD_MY_INFO_FAILURE,
-      payload: err,
+      payload: err.response.data,
     });
   }
 }
@@ -122,7 +122,7 @@ function* signUpSaga(action: ActionType<typeof signupAction.request>) {
     console.error(err.response.data);
     yield put({
       type: SIGN_UP_FAILURE,
-      payload: err,
+      payload: err.response.data,
     });
   }
 }
@@ -144,7 +144,7 @@ function* changeNicknameSaga(
     console.error(err.response.data);
     yield put({
       type: CHANGE_NICKNAME_FAILURE,
-      payload: err,
+      payload: err.response.data,
     });
   }
 }
@@ -163,7 +163,7 @@ function* followSaga(action: ActionType<typeof followAction.request>) {
     console.error(err.response.data);
     yield put({
       type: FOLLOW_FAILURE,
-      payload: err,
+      payload: err.response.data,
     });
   }
 }
@@ -183,7 +183,7 @@ function* unfollowSaga(action: ActionType<typeof unfollowAction.request>) {
     console.error(err.response.data);
     yield put({
       type: UNFOLLOW_FAILURE,
-      payload: err,
+      payload: err.response.data,
     });
   }
 }
@@ -205,7 +205,7 @@ function* removeFollowerSaga(
     console.error(err.response.data);
     yield put({
       type: REMOVE_FOLLOWER_FAILURE,
-      payload: err,
+      payload: err.response.data,
     });
   }
 }
@@ -225,7 +225,7 @@ function* loadFollowingsSaga() {
     console.error(err.response.data);
     yield put({
       type: LOAD_FOLLOWINGS_FAILURE,
-      payload: err,
+      payload: err.response.data,
     });
   }
 }
@@ -245,7 +245,7 @@ function* loadFollowersSaga() {
     console.error(err.response.data);
     yield put({
       type: LOAD_FOLLOWERS_FAILURE,
-      payload: err,
+      payload: err.response.data,
     });
   }
 }
@@ -265,7 +265,7 @@ function* loadUserSaga(action: ReturnType<typeof loadUser.request>) {
     console.error(err.response.data);
     yield put({
       type: LOAD_USER_FAILURE,
-      payload: err,
+      payload: err.response.data,
     });
   }
 }

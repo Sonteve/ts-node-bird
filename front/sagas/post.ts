@@ -75,7 +75,7 @@ function* addPostSaga(action: ReturnType<typeof addPost.request>) {
     console.error(err.response.data);
     yield put({
       type: ADD_POST_FAILURE,
-      payload: err,
+      payload: err.response.data,
     });
   }
 }
@@ -96,7 +96,7 @@ function* likePostSaga(action: ReturnType<typeof likePost.request>) {
     console.error(err.response.data);
     yield put({
       type: LIKE_POST_FAILURE,
-      payload: err,
+      payload: err.response.data,
     });
   }
 }
@@ -117,7 +117,7 @@ function* unlikePostSaga(action: ReturnType<typeof unLikePost.request>) {
     console.error(err.response.data);
     yield put({
       type: UNLIKE_POST_FAILURE,
-      payload: err,
+      payload: err.response.data,
     });
   }
 }
@@ -137,7 +137,7 @@ function* addCommentSaga(action: ReturnType<typeof addComment.request>) {
     console.error(err.response.data);
     yield put({
       type: ADD_COMMENT_FAILURE,
-      payload: err,
+      payload: err.response.data,
     });
   }
 }
@@ -162,7 +162,7 @@ function* removePostSaga(action: ReturnType<typeof removePost.request>) {
     console.error(err.response.data);
     yield put({
       type: REMOVE_POST_FAILURE,
-      payload: err,
+      payload: err.response.data,
     });
   }
 }
@@ -182,7 +182,7 @@ function* loadPostsSaga(action: ReturnType<typeof loadPosts.request>) {
     console.error(err.response.data);
     yield put({
       type: LOAD_POSTS_FAILURE,
-      payload: err,
+      payload: err.response.data,
     });
   }
 }
@@ -199,10 +199,11 @@ function* loadPostSaga(action: ReturnType<typeof loadPost.request>) {
       payload: result.data,
     });
   } catch (err) {
-    console.error(err.response.data);
+    /* console.error("에러 발생");
+    console.error(err.response.data); */
     yield put({
       type: LOAD_POST_FAILURE,
-      payload: err,
+      payload: err.response.data,
     });
   }
 }
@@ -222,7 +223,7 @@ function* uploadImageSaga(action: ReturnType<typeof uploadImage.request>) {
     console.error(err.response.data);
     yield put({
       type: UPLOAD_IMAGES_FAILURE,
-      payload: err,
+      payload: err.response.data,
     });
   }
 }
@@ -243,7 +244,7 @@ function* removeImageSaga(action: ReturnType<typeof removeImage.request>) {
     console.error(err.response.data);
     yield put({
       type: REMOVE_IMAGE_FAILURE,
-      payload: err,
+      payload: err.response.data,
     });
   }
 }
@@ -267,7 +268,7 @@ function* retweetPostSaga(action: ReturnType<typeof retweetPost.request>) {
     console.error(err.response.data);
     yield put({
       type: RETWEET_POST_FAILURE,
-      payload: err,
+      payload: err.response.data,
     });
   }
 }

@@ -321,50 +321,67 @@ router.post("/:postId/retweet", async (req, res, next) => {
   }
 });
 
+// GET /post/1
 router.get("/:postId", async (req, res, next) => {
-  const post = await Post.findAll({
-    where: { id: req.params.postId },
-    include: [
-      {
-        model: User,
-        attributes: ["id", "nickname"],
-      },
-      {
-        model: Comment,
-        include: [
-          {
-            model: User,
-            attributes: ["id", "nickname"],
-          },
-        ],
-      },
-      {
-        model: User,
-        as: "Likers",
-        attributes: ["id"],
-      },
-      {
-        model: Image,
-      },
-      {
-        model: Post,
-        as: "Retweet",
-        include: [
-          {
-            model: User,
-            attributes: ["id", "nickname"],
-          },
-          {
-            model: Image,
-          },
-        ],
-      },
-    ],
-  });
-  if (!post) {
-    return res.status(403).send("없는 게시글 페이지 입니다.");
+  try {
+    const post = await Post.findOne({
+      where: { id: req.params.postId },
+      include: [
+        {
+          model: Post,
+          as: "Retweet",
+        },
+      ],
+    });
+    if (!post) {
+      console.log("없는 페이지라고");
+      return res.status(403).send("존재하지 않는 게시글 입니다.");
+    }
+    console.log("글 존재한다.");
+    const fullPost = await Post.findOne({
+      where: { id: post.id },
+      include: [
+        {
+          model: Post,
+          as: "Retweet",
+          include: [
+            {
+              model: User,
+              attributes: ["id", "nickname"],
+            },
+            {
+              model: Image,
+            },
+          ],
+        },
+        {
+          model: User,
+          attributes: ["id", "nickname"],
+        },
+        {
+          model: User,
+          as: "Likers",
+          attributes: ["id", "nickname"],
+        },
+        {
+          model: Image,
+        },
+        {
+          model: Comment,
+          include: [
+            {
+              model: User,
+              attributes: ["id", "nickname"],
+            },
+          ],
+        },
+      ],
+    });
+    return res.status(200).json(fullPost);
+  } catch (error) {
+    console.error(error);
+    next(error);
   }
-  return res.status(200).json(post);
 });
 
 module.exports = router;
