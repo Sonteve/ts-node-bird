@@ -13,6 +13,7 @@ export interface Post {
   Comments: Comment[];
   User: User;
   Likers: { id: number }[];
+  Retweet: any;
 }
 
 export interface PostParam {

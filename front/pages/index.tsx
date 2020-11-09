@@ -14,13 +14,22 @@ const Home = () => {
   const { isPc, isTablet } = media();
   console.log(isPc, isTablet);
   const { me } = useSelector(({ user }: RootState) => user);
-  const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector(
-    ({ post }: RootState) => post
-  );
+  const {
+    mainPosts,
+    hasMorePosts,
+    loadPostsLoading,
+    addPostError,
+  } = useSelector(({ post }: RootState) => post);
   useEffect(() => {
-    dispatch(loadPosts.request());
+    dispatch(loadPosts.request({ lastId: undefined }));
     dispatch(loadMyInfoAction.request());
   }, []);
+
+  useEffect(() => {
+    if (addPostError) {
+      return alert(addPostError.response?.data);
+    }
+  }, [addPostError]);
 
   useEffect(() => {
     function onScroll() {
@@ -34,7 +43,8 @@ const Home = () => {
         document.documentElement.scrollHeight - 300
       ) {
         if (hasMorePosts && !loadPostsLoading) {
-          dispatch(loadPosts.request());
+          const lastId = mainPosts[mainPosts.length - 1].id;
+          dispatch(loadPosts.request({ lastId }));
         }
       }
     }
@@ -43,7 +53,7 @@ const Home = () => {
     return () => {
       window.removeEventListener("scroll", onScroll);
     };
-  }, [hasMorePosts, loadPostsLoading]);
+  }, [hasMorePosts, loadPostsLoading, mainPosts]);
   return (
     <AppLayout>
       <div>

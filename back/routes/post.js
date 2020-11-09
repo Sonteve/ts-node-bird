@@ -1,5 +1,5 @@
 const express = require("express");
-const { Post, User, Comment, Image } = require("../models");
+const { Post, User, Comment, Image, Hashtag } = require("../models");
 const { isLoggedIn } = require("./middlewares");
 const multer = require("multer");
 const path = require("path");
@@ -14,8 +14,9 @@ try {
 
 const upload = multer({
   storage: multer.diskStorage({
+    //경로 설정
     destination(req, res, done) {
-      done(null, "uploads");
+      done(null, "uploads"); // 이미지 파일 저장할 경로
     },
     filename(req, file, done) {
       // 이미지 덮어씌우는것을 방지하기위한 절차.
@@ -30,14 +31,27 @@ const upload = multer({
 
 router.post("/", isLoggedIn, upload.none(), async (req, res, next) => {
   try {
+    const hashtags = req.body.content.match(/(#[^\s#]+)/g);
     const post = await Post.create({
       content: req.body.content,
       UserId: req.user.id,
     });
+    console.log("작성글은", post);
+    if (hashtags) {
+      const result = await Promise.all(
+        hashtags.map((tag) =>
+          Hashtag.findOrCreate({ where: { name: tag.slice(1).toLowerCase() } })
+        )
+      );
+      // 해시태그 모델 객체가 반환되는데 2차원배열이기때문에 배열의 [0]번째로 다시 배열을 만들어서 addHashtags 해준다.
+      console.log("해시태그는", result);
+      await post.addHashtags(result.map((v) => v[0]));
+    }
+
+    // 이미지가 전송 되었을경우
     if (req.body.image) {
-      /* console.log("req.body.image", req.body.image); */
       if (Array.isArray(req.body.image)) {
-        // 이미지 여러개올린경우
+        // 이미지 여러개올린경우(배열인경우)
         // image테이블의 src column에 전송된 이미지 주소를 등록하고
         const images = await Promise.all(
           req.body.image.map((image) =>
@@ -80,6 +94,19 @@ router.post("/", isLoggedIn, upload.none(), async (req, res, next) => {
           model: User,
           as: "Likers",
           attributes: ["id"],
+        },
+        {
+          model: Post,
+          as: "Retweet",
+          include: [
+            {
+              model: User,
+              attributes: ["id", "nickname"],
+            },
+            {
+              model: Image,
+            },
+          ],
         },
       ],
     });
@@ -192,6 +219,7 @@ router.post(
   upload.array("image"),
   async (req, res, next) => {
     console.log(req.files);
+    // 서버 로컬에 이미지 파일 생성후 req.files에 담겨서 온다.
     res.status(200).json(req.files.map((v) => v.filename));
   }
 );
@@ -208,4 +236,89 @@ router.delete("/image/:imageName", async (req, res, next) => {
     next(error);
   }
 });
+
+router.post("/:postId/retweet", async (req, res, next) => {
+  try {
+    const post = await Post.findOne({
+      where: {
+        id: req.params.postId,
+      },
+      include: [
+        {
+          model: Post,
+          as: "Retweet",
+        },
+      ],
+    });
+    console.log(post);
+    if (post.Retweet?.UserId === req.user.id || req.user.id === post.UserId) {
+      return res.status(403).send("자신의 글은 리트윗 할 수 없습니다.");
+    }
+
+    const exPost = await Post.findOne({
+      where: {
+        UserId: req.user.id,
+        RetweetId: post.id,
+      },
+    });
+
+    if (exPost) {
+      return res.status(403).send("이미 리트윗 한 게시글 입니다.");
+    }
+
+    const retweet = await Post.create({
+      UserId: req.user.id,
+      RetweetId: post.id,
+      content: post.content,
+    });
+
+    const fullRetweetWithPost = await Post.findOne({
+      where: {
+        id: retweet.id,
+      },
+      include: [
+        {
+          model: Image,
+        },
+        {
+          model: Comment,
+          include: [
+            {
+              model: User,
+              attributes: ["id", "nickname"],
+            },
+          ],
+        },
+        {
+          model: User,
+          attributes: ["id", "nickname"],
+        },
+        {
+          model: User,
+          as: "Likers",
+          attributes: ["id"],
+        },
+        {
+          model: Post,
+          as: "Retweet",
+          include: [
+            {
+              model: User,
+              attributes: ["id", "nickname"],
+            },
+            {
+              model: Image,
+            },
+          ],
+        },
+      ],
+    });
+
+    return res.status(201).json(fullRetweetWithPost);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
 module.exports = router;

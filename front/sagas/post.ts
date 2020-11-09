@@ -42,6 +42,10 @@ import {
   REMOVE_IMAGE_SUCCESS,
   REMOVE_IMAGE_FAILURE,
   REMOVE_IMAGE_REQUEST,
+  retweetPost,
+  RETWEET_POST_SUCCESS,
+  RETWEET_POST_FAILURE,
+  RETWEET_POST_REQUEST,
 } from "../reducers/post";
 import { CommentParam, Post, PostParam } from "../interface/post";
 import { ADD_POST_TO_ME, REMOVE_POST_OF_ME } from "../reducers/user";
@@ -159,14 +163,13 @@ function* removePostSaga(action: ReturnType<typeof removePost.request>) {
   }
 }
 
-function loadPostsAPI() {
-  return axios.get("/posts");
+function loadPostsAPI(data: { lastId: number | undefined }) {
+  return axios.get(`/posts?lastId=${data.lastId || 0}`);
 }
 
 function* loadPostsSaga(action: ReturnType<typeof loadPosts.request>) {
   try {
-    const result = yield call(loadPostsAPI);
-    yield delay(1000);
+    const result = yield call(loadPostsAPI, action.payload);
     yield put({
       type: LOAD_POSTS_SUCCESS,
       payload: result.data,
@@ -221,8 +224,33 @@ function* removeImageSaga(action: ReturnType<typeof removeImage.request>) {
   }
 }
 
+function retweetPostAPI(data: { PostId: number }) {
+  return axios.post(`/post/${data.PostId}/retweet`);
+}
+
+function* retweetPostSaga(action: ReturnType<typeof retweetPost.request>) {
+  try {
+    const result = yield call(retweetPostAPI, action.payload);
+    yield put({
+      type: RETWEET_POST_SUCCESS,
+      payload: result.data,
+    });
+    yield put({
+      type: ADD_POST_TO_ME,
+      payload: { id: result.data.id },
+    });
+  } catch (err) {
+    console.error(err.response.data);
+    yield put({
+      type: RETWEET_POST_FAILURE,
+      payload: err,
+    });
+  }
+}
+
 export default function* postSaga() {
   yield takeLatest(ADD_POST_REQUEST, addPostSaga);
+  yield takeLatest(RETWEET_POST_REQUEST, retweetPostSaga);
   yield takeLatest(ADD_COMMENT_REQUEST, addCommentSaga);
   yield takeLatest(REMOVE_POST_REQUEST, removePostSaga);
   yield takeLatest(LOAD_POSTS_REQUEST, loadPostsSaga);

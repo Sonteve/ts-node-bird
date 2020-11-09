@@ -132,7 +132,7 @@ export const loadPosts = createAsyncAction(
   LOAD_POSTS_REQUEST,
   LOAD_POSTS_SUCCESS,
   LOAD_POSTS_FAILURE
-)<undefined, Post[], AxiosError>();
+)<{ lastId: number | undefined }, Post[], AxiosError>();
 
 export const UPLOAD_IMAGES_REQUEST = "UPLOAD_IMAGES_REQUEST";
 export const UPLOAD_IMAGES_SUCCESS = "UPLOAD_IMAGES_SUCCESS";
@@ -153,6 +153,15 @@ export const removeImage = createAsyncAction(
   REMOVE_IMAGE_SUCCESS,
   REMOVE_IMAGE_FAILURE
 )<{ filename: string }, { filename: string }, AxiosError>();
+export const RETWEET_POST_REQUEST = "RETWEET_POST_REQUEST";
+export const RETWEET_POST_SUCCESS = "RETWEET_POST_SUCCESS";
+export const RETWEET_POST_FAILURE = "RETWEET_POST_FAILURE";
+
+export const retweetPost = createAsyncAction(
+  RETWEET_POST_REQUEST,
+  RETWEET_POST_SUCCESS,
+  RETWEET_POST_FAILURE
+)<{ PostId: number }, Post, AxiosError>();
 
 type PostAction = ActionType<
   | typeof addPost
@@ -163,6 +172,7 @@ type PostAction = ActionType<
   | typeof unLikePost
   | typeof uploadImage
   | typeof removeImage
+  | typeof retweetPost
 >;
 
 const post = createReducer<PostState, PostAction>(initialState, {
@@ -271,7 +281,7 @@ const post = createReducer<PostState, PostAction>(initialState, {
       draft.loadPostsLoading = false;
       draft.loadPostsDone = true;
       draft.mainPosts.push(...action.payload);
-      draft.hasMorePosts = draft.mainPosts.length < 50;
+      draft.hasMorePosts = action.payload.length === 10;
     }),
   [LOAD_POSTS_FAILURE]: (state, action) =>
     produce(state, (draft) => {
@@ -313,6 +323,23 @@ const post = createReducer<PostState, PostAction>(initialState, {
     produce(state, (draft) => {
       draft.removeImageLoading = false;
       draft.removeImageError = action.payload;
+    }),
+  [RETWEET_POST_REQUEST]: (state) =>
+    produce(state, (draft) => {
+      draft.addPostDone = false;
+      draft.addPostLoading = true;
+    }),
+  [RETWEET_POST_SUCCESS]: (state, action) =>
+    produce(state, (draft) => {
+      draft.addPostLoading = false;
+      draft.addPostDone = true;
+      draft.mainPosts.unshift(action.payload);
+      draft.imagePaths = [];
+    }),
+  [RETWEET_POST_FAILURE]: (state, action) =>
+    produce(state, (draft) => {
+      draft.addPostLoading = false;
+      draft.addPostError = action.payload;
     }),
 });
 
