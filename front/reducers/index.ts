@@ -11,6 +11,7 @@ type State = {
 const rootReducer = (state: State | undefined, action: AnyAction): State => {
   switch (action.type) {
     case HYDRATE:
+      console.log(action);
       console.log(action.payload);
       return { ...state, ...action.payload };
     default: {

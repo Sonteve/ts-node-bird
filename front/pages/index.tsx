@@ -7,6 +7,9 @@ import PostCard from "../components/PostCard";
 import { media } from "../hooks/useMedia";
 import { loadPosts } from "../reducers/post";
 import { loadMyInfoAction } from "../reducers/user";
+import wrapper from "../store/configureStore";
+import { END } from "redux-saga";
+import axios from "axios";
 
 const Home = () => {
   /* const [currentmedia] = useMedia(); */
@@ -20,10 +23,10 @@ const Home = () => {
     loadPostsLoading,
     addPostError,
   } = useSelector(({ post }: RootState) => post);
-  useEffect(() => {
+  /* useEffect(() => {
     dispatch(loadPosts.request({ lastId: undefined }));
     dispatch(loadMyInfoAction.request());
-  }, []);
+  }, []); */
 
   useEffect(() => {
     if (addPostError) {
@@ -66,5 +69,22 @@ const Home = () => {
     </AppLayout>
   );
 };
+
+// getServerSideProps 가 실행되서 변화된 액션객체를 HYDRATE로 받는다.
+export const getServerSideProps = wrapper.getServerSideProps(
+  async (context) => {
+    //브라우저는 자동으로 쿠키를 헤더에 넣어서 보내주지만 서버에서 쿠키를 보낼때는 직접 설정해주어야한다.
+    const cookie = context.req ? context.req.headers.cookie : ""; // 서버일때만 쿠키넣어줌
+    axios.defaults.headers.Cookie = "";
+    if (context.req && cookie) {
+      axios.defaults.headers.Cookie = cookie;
+    }
+
+    context.store.dispatch(loadPosts.request({ lastId: undefined }));
+    context.store.dispatch(loadMyInfoAction.request());
+    context.store.dispatch(END); // 앞의 액션들이 끝날때까지 대기
+    await context.store.sagaTask.toPromise(); // configureStore에 등록한 sagaTask에 toPromise를 붙인다.
+  }
+);
 
 export default Home;

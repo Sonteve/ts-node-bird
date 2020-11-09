@@ -41,6 +41,10 @@ import {
   REMOVE_FOLLOWER_REQUEST,
   REMOVE_FOLLOWER_SUCCESS,
   REMOVE_FOLLOWER_FAILURE,
+  LOAD_USER_REQUEST,
+  LOAD_USER_SUCCESS,
+  LOAD_USER_FAILURE,
+  loadUser,
 } from "../reducers/user";
 import { ActionType } from "typesafe-actions";
 
@@ -246,6 +250,26 @@ function* loadFollowersSaga() {
   }
 }
 
+function loadUserAPI(data: { UserId: number }) {
+  return axios.get(`/user/${data.UserId}`);
+}
+
+function* loadUserSaga(action: ReturnType<typeof loadUser.request>) {
+  try {
+    const result = yield call(loadUserAPI, action.payload);
+    yield put({
+      type: LOAD_USER_SUCCESS,
+      payload: result.data,
+    });
+  } catch (err) {
+    console.error(err.response.data);
+    yield put({
+      type: LOAD_USER_FAILURE,
+      payload: err,
+    });
+  }
+}
+
 export default function* userSaga() {
   yield takeLatest(LOG_IN_REQUEST, loginSaga);
   yield takeLatest(LOG_OUT_REQUEST, logoutSaga);
@@ -257,4 +281,5 @@ export default function* userSaga() {
   yield takeLatest(LOAD_FOLLOWERS_REQUEST, loadFollowersSaga);
   yield takeLatest(LOAD_FOLLOWINGS_REQUEST, loadFollowingsSaga);
   yield takeLatest(REMOVE_FOLLOWER_REQUEST, removeFollowerSaga);
+  yield takeLatest(LOAD_USER_REQUEST, loadUserSaga);
 }

@@ -46,6 +46,10 @@ import {
   RETWEET_POST_SUCCESS,
   RETWEET_POST_FAILURE,
   RETWEET_POST_REQUEST,
+  loadPost,
+  LOAD_POST_SUCCESS,
+  LOAD_POST_FAILURE,
+  LOAD_POST_REQUEST,
 } from "../reducers/post";
 import { CommentParam, Post, PostParam } from "../interface/post";
 import { ADD_POST_TO_ME, REMOVE_POST_OF_ME } from "../reducers/user";
@@ -183,6 +187,26 @@ function* loadPostsSaga(action: ReturnType<typeof loadPosts.request>) {
   }
 }
 
+function loadPostAPI(data: { PostId: number }) {
+  return axios.get(`/post/${data.PostId}`);
+}
+
+function* loadPostSaga(action: ReturnType<typeof loadPost.request>) {
+  try {
+    const result = yield call(loadPostAPI, action.payload);
+    yield put({
+      type: LOAD_POST_SUCCESS,
+      payload: result.data,
+    });
+  } catch (err) {
+    console.error(err.response.data);
+    yield put({
+      type: LOAD_POST_FAILURE,
+      payload: err,
+    });
+  }
+}
+
 function uploadImageAPI(data: FormData) {
   return axios.post("/post/images", data);
 }
@@ -258,4 +282,5 @@ export default function* postSaga() {
   yield takeLatest(UNLIKE_POST_REQUEST, unlikePostSaga);
   yield takeLatest(UPLOAD_IMAGES_REQUEST, uploadImageSaga);
   yield takeLatest(REMOVE_IMAGE_REQUEST, removeImageSaga);
+  yield takeLatest(LOAD_POST_REQUEST, loadPostSaga);
 }

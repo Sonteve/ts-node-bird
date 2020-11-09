@@ -54,6 +54,10 @@ export const REMOVE_FOLLOWER_REQUEST = "REMOVE_FOLLOWER_REQUEST";
 export const REMOVE_FOLLOWER_SUCCESS = "REMOVE_FOLLOWER_SUCCESS";
 export const REMOVE_FOLLOWER_FAILURE = "REMOVE_FOLLOWER_FAILURE";
 
+export const LOAD_USER_REQUEST = "LOAD_USER_REQUEST";
+export const LOAD_USER_SUCCESS = "LOAD_USER_SUCCESS";
+export const LOAD_USER_FAILURE = "LOAD_USER_FAILURE";
+
 export const loadMyInfoAction = createAsyncAction(
   LOAD_MY_INFO_REQUEST,
   LOAD_MY_INFO_SUCCESS,
@@ -122,6 +126,12 @@ export const unfollowAction = createAsyncAction(
   UNFOLLOW_FAILURE
 )<FollowParam, { id: number }, AxiosError>();
 
+export const loadUser = createAsyncAction(
+  LOAD_USER_REQUEST,
+  LOAD_USER_SUCCESS,
+  LOAD_USER_FAILURE
+)<{ UserId: number }, UserData, AxiosError>();
+
 type UserAction = ActionType<
   | typeof loginAction
   | typeof logoutAction
@@ -135,8 +145,9 @@ type UserAction = ActionType<
   | typeof loadFollowers
   | typeof loadFollowings
   | typeof removeFollower
+  | typeof loadUser
 >;
-//f8901c8f24b809bc5cfe8eb80ea72569
+
 export interface UserState {
   me: UserData | null;
   signUpData: null;
@@ -170,6 +181,9 @@ export interface UserState {
   removeFollowerLoading: boolean; // 회원가입 시도중
   removeFollowerDone: boolean;
   removeFollowerError: AxiosError | null;
+  loadUserLoading: boolean; // 회원가입 시도중
+  loadUserDone: boolean;
+  loadUserError: AxiosError | null;
 }
 
 const initialState: UserState = {
@@ -205,6 +219,9 @@ const initialState: UserState = {
   removeFollowerLoading: false,
   removeFollowerDone: false,
   removeFollowerError: null,
+  loadUserLoading: false,
+  loadUserDone: false,
+  loadUserError: null,
 };
 
 const user = createReducer<UserState, UserAction>(initialState, {
@@ -402,6 +419,23 @@ const user = createReducer<UserState, UserAction>(initialState, {
     produce(state, (draft) => {
       draft.removeFollowerLoading = false;
       draft.removeFollowerError = action.payload;
+    }),
+  [LOAD_USER_REQUEST]: (state, action) =>
+    produce(state, (draft) => {
+      draft.loadUserLoading = true;
+      draft.loadUserError = null;
+      draft.loadUserDone = false;
+    }),
+  [LOAD_USER_SUCCESS]: (state, action) =>
+    produce(state, (draft) => {
+      draft.me = action.payload;
+      draft.loadUserLoading = false;
+      draft.loadUserDone = true;
+    }),
+  [LOAD_USER_FAILURE]: (state, action) =>
+    produce(state, (draft) => {
+      draft.loadUserLoading = false;
+      draft.loadUserError = action.payload;
     }),
 });
 

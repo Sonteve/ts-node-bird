@@ -6,53 +6,11 @@ const passport = require("passport");
 const router = express.Router();
 const { isLoggedIn, isNotLoggedIn } = require("./middlewares");
 
-router.get("/", async (req, res, next) => {
-  try {
-    if (req.user) {
-      const fullUserWithoutPassword = await User.findOne({
-        where: {
-          id: req.user.id,
-        },
-        attributes: {
-          exclude: ["password"],
-        },
-        include: [
-          {
-            model: Post,
-            attributes: ["id"],
-          },
-          {
-            model: User,
-            as: "Followers",
-            attributes: ["id"],
-          },
-          {
-            model: User,
-            as: "Followings",
-            attributes: ["id"],
-          },
-        ],
-      });
-      return res.status(200).json(fullUserWithoutPassword);
-
-      /* const user = await User.findOne({
-        where: {
-          id: req.user.id,
-        },
-      }); */
-      return res.status(200).json(user);
-    } else {
-      return res.status(200).json(null);
-    }
-  } catch (error) {
-    console.error(error);
-    next(error);
-  }
-});
-
 //로그인 유지
 router.get("/", async (req, res, next) => {
-  if (req.isAuthenticated()) {
+  // GET /user
+  try {
+    console.log(req.headers);
     if (req.user) {
       const fullUserWithoutPassword = await User.findOne({
         where: { id: req.user.id },
@@ -80,6 +38,9 @@ router.get("/", async (req, res, next) => {
     } else {
       return res.status(200).json(null);
     }
+  } catch (error) {
+    console.error(error);
+    next(error);
   }
 });
 
@@ -271,6 +232,47 @@ router.get("/followings", isLoggedIn, async (req, res, next) => {
       attributes: ["id", "nickname"],
     });
     res.status(200).json(followings);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+router.get("/:userId", async (req, res, next) => {
+  // GET /user/1
+  try {
+    const fullUserWithoutPassword = await User.findOne({
+      where: { id: req.params.userId },
+      attributes: {
+        exclude: ["password"],
+      },
+      include: [
+        {
+          model: Post,
+          attributes: ["id"],
+        },
+        {
+          model: User,
+          as: "Followers",
+          attributes: ["id"],
+        },
+        {
+          model: User,
+          as: "Followings",
+          attributes: ["id"],
+        },
+      ],
+    });
+
+    if (fullUserWithoutPassword) {
+      const data = fullUserWithoutPassword.toJSON();
+      data.Posts = data.Posts.length; // 개인정보 침해 예방 으로 미리 length구해서 반환해준다.
+      data.Followers = data.Followers.length;
+      data.Followings = data.Followings.length;
+      return res.status(200).json(data);
+    } else {
+      return res.status(404).send("존재하지않는 사용자 입니다.");
+    }
   } catch (error) {
     console.error(error);
     next(error);

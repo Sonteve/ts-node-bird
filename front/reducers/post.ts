@@ -31,6 +31,9 @@ export interface PostState {
   loadPostsLoading: boolean;
   loadPostsDone: boolean;
   loadPostsError: AxiosError | null;
+  loadPostLoading: boolean;
+  loadPostDone: boolean;
+  loadPostError: AxiosError | null;
   likePostLoading: boolean;
   likePostDone: boolean;
   likePostError: AxiosError | null;
@@ -62,6 +65,9 @@ const initialState: PostState = {
   loadPostsLoading: false,
   loadPostsDone: false,
   loadPostsError: null,
+  loadPostLoading: false,
+  loadPostDone: false,
+  loadPostError: null,
   likePostLoading: false,
   likePostDone: false,
   likePostError: null,
@@ -134,6 +140,15 @@ export const loadPosts = createAsyncAction(
   LOAD_POSTS_FAILURE
 )<{ lastId: number | undefined }, Post[], AxiosError>();
 
+export const LOAD_POST_REQUEST = "LOAD_POST_REQUEST";
+export const LOAD_POST_SUCCESS = "LOAD_POST_SUCCESS";
+export const LOAD_POST_FAILURE = "LOAD_POST_FAILURE";
+export const loadPost = createAsyncAction(
+  LOAD_POST_REQUEST,
+  LOAD_POST_SUCCESS,
+  LOAD_POST_FAILURE
+)<{ PostId: number }, Post[], AxiosError>();
+
 export const UPLOAD_IMAGES_REQUEST = "UPLOAD_IMAGES_REQUEST";
 export const UPLOAD_IMAGES_SUCCESS = "UPLOAD_IMAGES_SUCCESS";
 export const UPLOAD_IMAGES_FAILURE = "UPLOAD_IMAGES_FAILURE";
@@ -173,6 +188,7 @@ type PostAction = ActionType<
   | typeof uploadImage
   | typeof removeImage
   | typeof retweetPost
+  | typeof loadPost
 >;
 
 const post = createReducer<PostState, PostAction>(initialState, {
@@ -287,6 +303,23 @@ const post = createReducer<PostState, PostAction>(initialState, {
     produce(state, (draft) => {
       draft.loadPostsLoading = false;
       draft.loadPostsError = action.payload;
+    }),
+  [LOAD_POST_REQUEST]: (state) =>
+    produce(state, (draft) => {
+      draft.loadPostDone = false;
+      draft.loadPostLoading = true;
+    }),
+  [LOAD_POST_SUCCESS]: (state, action) =>
+    produce(state, (draft) => {
+      draft.loadPostLoading = false;
+      draft.loadPostDone = true;
+      draft.mainPosts = action.payload;
+      draft.hasMorePosts = action.payload.length === 10;
+    }),
+  [LOAD_POST_FAILURE]: (state, action) =>
+    produce(state, (draft) => {
+      draft.loadPostLoading = false;
+      draft.loadPostError = action.payload;
     }),
   [UPLOAD_IMAGES_REQUEST]: (state) =>
     produce(state, (draft) => {

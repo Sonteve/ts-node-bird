@@ -321,4 +321,50 @@ router.post("/:postId/retweet", async (req, res, next) => {
   }
 });
 
+router.get("/:postId", async (req, res, next) => {
+  const post = await Post.findAll({
+    where: { id: req.params.postId },
+    include: [
+      {
+        model: User,
+        attributes: ["id", "nickname"],
+      },
+      {
+        model: Comment,
+        include: [
+          {
+            model: User,
+            attributes: ["id", "nickname"],
+          },
+        ],
+      },
+      {
+        model: User,
+        as: "Likers",
+        attributes: ["id"],
+      },
+      {
+        model: Image,
+      },
+      {
+        model: Post,
+        as: "Retweet",
+        include: [
+          {
+            model: User,
+            attributes: ["id", "nickname"],
+          },
+          {
+            model: Image,
+          },
+        ],
+      },
+    ],
+  });
+  if (!post) {
+    return res.status(403).send("없는 게시글 페이지 입니다.");
+  }
+  return res.status(200).json(post);
+});
+
 module.exports = router;
