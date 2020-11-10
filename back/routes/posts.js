@@ -15,37 +15,43 @@ router.get("/", async (req, res, next) => {
       where,
       limit: 10,
       order: [
-        ["createdAt", "DESC"], // 게시글의 생성일로 정렬
-        [Comment, "createdAt", "DESC"], // 댓글 정렬
+        ["createdAt", "DESC"],
+        [Comment, "createdAt", "DESC"],
       ],
-      // ASC 1,2,3,4,5
-      // DESC 5,4,3,2,1
       include: [
         {
-          // 게시글의 이미지
+          model: User,
+          attributes: ["id", "nickname"],
+        },
+        {
           model: Image,
         },
         {
-          // 게시글의 작성자
           model: Comment,
           include: [
             {
-              // 게시글 작성자
               model: User,
               attributes: ["id", "nickname"],
             },
           ],
         },
         {
-          // 글 작성자 정보
-          model: User,
-          attributes: ["id", "nickname"],
-        },
-        {
-          // 좋아요 누른 사람
-          model: User,
+          model: User, // 좋아요 누른 사람
           as: "Likers",
           attributes: ["id"],
+        },
+        {
+          model: Post,
+          as: "Retweet",
+          include: [
+            {
+              model: User,
+              attributes: ["id", "nickname"],
+            },
+            {
+              model: Image,
+            },
+          ],
         },
       ],
     });

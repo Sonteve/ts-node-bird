@@ -56,6 +56,14 @@ export const LOAD_USER_REQUEST = "LOAD_USER_REQUEST";
 export const LOAD_USER_SUCCESS = "LOAD_USER_SUCCESS";
 export const LOAD_USER_FAILURE = "LOAD_USER_FAILURE";
 
+export const LOAD_MORE_FOLLOWERS_REQUEST = "LOAD_MORE_FOLLOWERS_REQUEST";
+export const LOAD_MORE_FOLLOWERS_SUCCESS = "LOAD_MORE_FOLLOWERS_SUCCESS";
+export const LOAD_MORE_FOLLOWERS_FAILURE = "LOAD_MORE_FOLLOWERS_FAILURE";
+
+export const LOAD_MORE_FOLLOWINGS_REQUEST = "LOAD_MORE_FOLLOWINGS_REQUEST";
+export const LOAD_MORE_FOLLOWINGS_SUCCESS = "LOAD_MORE_FOLLOWINGS_SUCCESS";
+export const LOAD_MORE_FOLLOWINGS_FAILURE = "LOAD_MORE_FOLLOWINGS_FAILURE";
+
 export const loadMyInfoAction = createAsyncAction(
   LOAD_MY_INFO_REQUEST,
   LOAD_MY_INFO_SUCCESS,
@@ -72,19 +80,45 @@ export const loadFollowings = createAsyncAction(
   LOAD_FOLLOWINGS_REQUEST,
   LOAD_FOLLOWINGS_SUCCESS,
   LOAD_FOLLOWINGS_FAILURE
-)<undefined, { id: number; nickname: string }[], Error>();
+)<number | null, { id: number; nickname: string }[], Error>();
 
 export const loadFollowers = createAsyncAction(
   LOAD_FOLLOWERS_REQUEST,
   LOAD_FOLLOWERS_SUCCESS,
   LOAD_FOLLOWERS_FAILURE
-)<undefined, { id: number; nickname: string }[], Error>();
+)<number | null, { id: number; nickname: string }[], Error>();
 
 export const removeFollower = createAsyncAction(
   REMOVE_FOLLOWER_REQUEST,
   REMOVE_FOLLOWER_SUCCESS,
   REMOVE_FOLLOWER_FAILURE
 )<{ id: number }, { UserId: number }, Error>();
+
+export const loadMoreFollowers = createAsyncAction(
+  LOAD_MORE_FOLLOWERS_REQUEST,
+  LOAD_MORE_FOLLOWERS_SUCCESS,
+  LOAD_MORE_FOLLOWERS_FAILURE
+)<
+  number,
+  {
+    id: number;
+    nickname: string;
+  }[],
+  Error
+>();
+
+export const loadMoreFollowings = createAsyncAction(
+  LOAD_MORE_FOLLOWINGS_REQUEST,
+  LOAD_MORE_FOLLOWINGS_SUCCESS,
+  LOAD_MORE_FOLLOWINGS_FAILURE
+)<
+  number,
+  {
+    id: number;
+    nickname: string;
+  }[],
+  Error
+>();
 
 export const ADD_POST_TO_ME = "ADD_POST_TO_ME";
 export const addPostToMe = createAction(ADD_POST_TO_ME)<Post>();
@@ -144,6 +178,8 @@ type UserAction = ActionType<
   | typeof loadFollowings
   | typeof removeFollower
   | typeof loadUserAction
+  | typeof loadMoreFollowers
+  | typeof loadMoreFollowings
 >;
 
 export interface UserState {
@@ -183,6 +219,14 @@ export interface UserState {
   loadUserLoading: boolean; // 회원가입 시도중
   loadUserDone: boolean;
   loadUserError: Error | null;
+  loadMoreFollowersLoading: boolean; // 회원가입 시도중
+  loadMoreFollowersDone: boolean;
+  loadMoreFollowersError: Error | null;
+  loadMoreFollowingsLoading: boolean; // 회원가입 시도중
+  loadMoreFollowingsDone: boolean;
+  loadMoreFollowingsError: Error | null;
+  hasMoreFollower: boolean;
+  hasMoreFollowing: boolean;
 }
 
 const initialState: UserState = {
@@ -222,6 +266,14 @@ const initialState: UserState = {
   loadUserLoading: false,
   loadUserDone: false,
   loadUserError: null,
+  loadMoreFollowingsLoading: false,
+  loadMoreFollowingsDone: false,
+  loadMoreFollowingsError: null,
+  loadMoreFollowersLoading: false,
+  loadMoreFollowersDone: false,
+  loadMoreFollowersError: null,
+  hasMoreFollower: true,
+  hasMoreFollowing: true,
 };
 
 const user = createReducer<UserState, UserAction>(initialState, {
@@ -436,6 +488,44 @@ const user = createReducer<UserState, UserAction>(initialState, {
     produce(state, (draft) => {
       draft.loadUserLoading = false;
       draft.loadUserError = action.payload;
+    }),
+  [LOAD_MORE_FOLLOWERS_REQUEST]: (state, action) =>
+    produce(state, (draft) => {
+      draft.loadMoreFollowersLoading = true;
+      draft.loadMoreFollowersDone = false;
+      draft.loadMoreFollowersError = null;
+    }),
+  [LOAD_MORE_FOLLOWERS_SUCCESS]: (state, action) =>
+    produce(state, (draft) => {
+      draft.loadMoreFollowersLoading = false;
+      draft.loadMoreFollowersDone = true;
+      if (!draft.me) return;
+      draft.me.Followers = action.payload;
+      draft.hasMoreFollower = action.payload.length === 3;
+    }),
+  [LOAD_MORE_FOLLOWERS_FAILURE]: (state, action) =>
+    produce(state, (draft) => {
+      draft.loadMoreFollowersLoading = false;
+      draft.loadMoreFollowersError = action.payload;
+    }),
+  [LOAD_MORE_FOLLOWINGS_REQUEST]: (state, action) =>
+    produce(state, (draft) => {
+      draft.loadMoreFollowingsLoading = true;
+      draft.loadMoreFollowingsDone = false;
+      draft.loadMoreFollowingsError = null;
+    }),
+  [LOAD_MORE_FOLLOWINGS_SUCCESS]: (state, action) =>
+    produce(state, (draft) => {
+      draft.loadMoreFollowingsLoading = false;
+      draft.loadMoreFollowingsDone = true;
+      if (!draft.me) return;
+      draft.me.Followings = action.payload;
+      draft.hasMoreFollowing = action.payload.length === 3;
+    }),
+  [LOAD_MORE_FOLLOWINGS_FAILURE]: (state, action) =>
+    produce(state, (draft) => {
+      draft.loadMoreFollowingsLoading = false;
+      draft.loadMoreFollowingsError = action.payload;
     }),
 });
 

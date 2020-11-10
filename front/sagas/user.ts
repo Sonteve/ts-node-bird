@@ -43,6 +43,15 @@ import {
   LOAD_USER_SUCCESS,
   LOAD_USER_FAILURE,
   loadUserAction,
+  loadMoreFollowers,
+  LOAD_MORE_FOLLOWERS_SUCCESS,
+  LOAD_MORE_FOLLOWERS_FAILURE,
+  LOAD_MORE_FOLLOWERS_REQUEST,
+  LOAD_MORE_FOLLOWINGS_REQUEST,
+  LOAD_MORE_FOLLOWINGS_SUCCESS,
+  LOAD_MORE_FOLLOWINGS_FAILURE,
+  loadFollowings,
+  loadFollowers,
 } from "../reducers/user";
 import { ActionType } from "typesafe-actions";
 
@@ -208,13 +217,15 @@ function* removeFollowerSaga(
   }
 }
 
-function loadFollowingsAPI() {
-  return axios.get("/user/followings");
+function loadFollowingsAPI(data: number | null) {
+  return axios.get(`/user/followings?limit=${data ? data : 0}`);
 }
 
-function* loadFollowingsSaga() {
+function* loadFollowingsSaga(
+  action: ReturnType<typeof loadFollowings.request>
+) {
   try {
-    const result = yield call(loadFollowingsAPI);
+    const result = yield call(loadFollowingsAPI, action.payload);
     yield put({
       type: LOAD_FOLLOWINGS_SUCCESS,
       payload: result.data,
@@ -228,13 +239,13 @@ function* loadFollowingsSaga() {
   }
 }
 
-function loadFollowersAPI() {
-  return axios.get("/user/followers");
+function loadFollowersAPI(data: number | null) {
+  return axios.get(`/user/followers?limit=${data ? data : 0}`);
 }
 
-function* loadFollowersSaga() {
+function* loadFollowersSaga(action: ReturnType<typeof loadFollowers.request>) {
   try {
-    const result = yield call(loadFollowersAPI);
+    const result = yield call(loadFollowersAPI, action.payload);
     yield put({
       type: LOAD_FOLLOWERS_SUCCESS,
       payload: result.data,
@@ -268,6 +279,48 @@ function* loadUserSaga(action: ReturnType<typeof loadUserAction.request>) {
   }
 }
 
+function loadMoreFollowersAPI(data: number) {
+  return axios.get(`/user/followers?limit=${data}`);
+}
+
+function* loadMoreFollowersSaga(
+  action: ReturnType<typeof loadMoreFollowers.request>
+) {
+  try {
+    const result = yield call(loadMoreFollowersAPI, action.payload);
+    yield put({
+      type: LOAD_MORE_FOLLOWERS_SUCCESS,
+      payload: result.data,
+    });
+  } catch (error) {
+    yield put({
+      type: LOAD_MORE_FOLLOWERS_FAILURE,
+      payload: error.response.data,
+    });
+  }
+}
+
+function loadMoreFollowingsAPI(data: number) {
+  return axios.get(`/user/followings?limit=${data}`);
+}
+
+function* loadMoreFollowingsSaga(
+  action: ReturnType<typeof loadMoreFollowers.request>
+) {
+  try {
+    const result = yield call(loadMoreFollowingsAPI, action.payload);
+    yield put({
+      type: LOAD_MORE_FOLLOWINGS_SUCCESS,
+      payload: result.data,
+    });
+  } catch (error) {
+    yield put({
+      type: LOAD_MORE_FOLLOWINGS_FAILURE,
+      payload: error.response.data,
+    });
+  }
+}
+
 export default function* userSaga() {
   yield takeLatest(LOG_IN_REQUEST, loginSaga);
   yield takeLatest(LOG_OUT_REQUEST, logoutSaga);
@@ -280,4 +333,6 @@ export default function* userSaga() {
   yield takeLatest(LOAD_FOLLOWINGS_REQUEST, loadFollowingsSaga);
   yield takeLatest(REMOVE_FOLLOWER_REQUEST, removeFollowerSaga);
   yield takeLatest(LOAD_USER_REQUEST, loadUserSaga);
+  yield takeLatest(LOAD_MORE_FOLLOWERS_REQUEST, loadMoreFollowersSaga);
+  yield takeLatest(LOAD_MORE_FOLLOWINGS_REQUEST, loadMoreFollowingsSaga);
 }

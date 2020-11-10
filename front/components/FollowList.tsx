@@ -7,9 +7,20 @@ import { removeFollower, unfollowAction } from "../reducers/user";
 interface Props {
   header: "팔로잉" | "팔로워";
   data: { id: number; nickname?: string }[];
+  onClickMoreFollower?: () => void;
+  onClickMoreFollowing?: () => void;
+  hasMoreFollowing?: boolean;
+  hasMoreFollower?: boolean;
 }
 
-const FollowList = ({ header, data }: Props) => {
+const FollowList = ({
+  header,
+  data,
+  onClickMoreFollower,
+  onClickMoreFollowing,
+  hasMoreFollower,
+  hasMoreFollowing,
+}: Props) => {
   const dispatch = useDispatch();
   const grid = useMemo(() => ({ gutter: 4, xs: 2, md: 3 }), []);
 
@@ -20,6 +31,16 @@ const FollowList = ({ header, data }: Props) => {
       dispatch(removeFollower.request({ id }));
     }
   }, []);
+
+  const onClickMoreButton = useCallback(() => {
+    if (header === "팔로잉" && onClickMoreFollowing) {
+      console.log("더 팔로잉");
+      onClickMoreFollowing();
+    } else if (header === "팔로워" && onClickMoreFollower) {
+      console.log("더 팔로워");
+      onClickMoreFollower();
+    }
+  }, []);
   return (
     <List
       style={{ marginBottom: 20 }}
@@ -28,7 +49,7 @@ const FollowList = ({ header, data }: Props) => {
       header={<div>{header}</div>}
       loadMore={
         <div style={{ textAlign: "center", margin: " 10px 0" }}>
-          <Button>더보기</Button>
+          <Button onClick={onClickMoreButton}>더보기</Button>
         </div>
       }
       bordered
