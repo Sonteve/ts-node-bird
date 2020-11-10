@@ -1,6 +1,6 @@
 import React, { ReactChild, ReactElement, ReactNode, useState } from "react";
 import Link from "next/link";
-import styled, { createGlobalStyle } from "styled-components";
+import { createGlobalStyle } from "styled-components";
 import { Menu, Input, Row, Col } from "antd";
 import LoginForm from "./LoginForm";
 import UserProfile from "./UserProfile";

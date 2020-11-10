@@ -4,7 +4,6 @@ import AppLayout from "../components/AppLayout";
 import { RootState } from "../reducers";
 import PostForm from "../components/PostForm";
 import PostCard from "../components/PostCard";
-import { media } from "../hooks/useMedia";
 import { loadPosts } from "../reducers/post";
 import { loadMyInfoAction } from "../reducers/user";
 import wrapper from "../store/configureStore";
@@ -74,6 +73,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
     context.store.dispatch(loadMyInfoAction.request());
     context.store.dispatch(END); // 앞의 액션들이 끝날때까지 대기
     await context.store.sagaTask.toPromise(); // configureStore에 등록한 sagaTask에 toPromise를 붙인다.
+    return { props: {} };
   }
 );
 

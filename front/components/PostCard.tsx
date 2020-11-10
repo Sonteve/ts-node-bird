@@ -22,7 +22,6 @@ import {
   unLikePost,
 } from "../reducers/post";
 import FollowButton from "./FollowButton";
-import { media } from "../hooks/useMedia";
 
 interface Props {
   post: Post;
@@ -79,7 +78,10 @@ const PostCard = ({ post }: Props) => {
                 {id && post.User.id === id ? (
                   <>
                     <Button>수정</Button>
-                    <Button type="danger" onClick={onClikeRemovePost}>
+                    <Button
+                      style={{ background: "pink" }}
+                      onClick={onClikeRemovePost}
+                    >
                       삭제
                     </Button>
                   </>

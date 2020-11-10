@@ -1,14 +1,4 @@
-import {
-  call,
-  debounce,
-  delay,
-  put,
-  takeLatest,
-  throttle,
-} from "redux-saga/effects";
-import shortId from "shortid";
-import faker from "faker";
-/* import axios from "axios"; */
+import { call, put, takeLatest } from "redux-saga/effects";
 import {
   ADD_POST_REQUEST,
   ADD_POST_SUCCESS,
@@ -52,15 +42,16 @@ import {
   LOAD_POST_REQUEST,
   loadUserPostsAction,
   LOAD_USER_POSTS_REQUEST,
+  LOAD_USER_POSTS_SUCCESS,
+  LOAD_USER_POSTS_FAILURE,
+  loadHashtagPostsAction,
+  LOAD_HASHTAG_POSTS_SUCCESS,
+  LOAD_HASHTAG_POSTS_FAILURE,
+  LOAD_HASHTAG_POSTS_REQUEST,
 } from "../reducers/post";
-import { CommentParam, Post, PostParam } from "../interface/post";
-import {
-  ADD_POST_TO_ME,
-  loadUserAction,
-  REMOVE_POST_OF_ME,
-} from "../reducers/user";
+import { CommentParam } from "../interface/post";
+import { ADD_POST_TO_ME, REMOVE_POST_OF_ME } from "../reducers/user";
 import axios from "axios";
-import PostImages from "../components/PostImages";
 
 function addPostAPI(data: FormData) {
   return axios.post("/post", data);
@@ -218,7 +209,7 @@ function loadUserPostsAPI(data: {
   lastId: number | undefined;
   UserId: number;
 }) {
-  return axios.get(`/user/${data.UserId}/post?lastId=${data.lastId || 0}`);
+  return axios.get(`/user/${data.UserId}/posts?lastId=${data.lastId || 0}`);
 }
 
 function* loadUserPostsSaga(
@@ -227,13 +218,40 @@ function* loadUserPostsSaga(
   try {
     const result = yield call(loadUserPostsAPI, action.payload);
     yield put({
-      type: LOAD_POSTS_SUCCESS,
+      type: LOAD_USER_POSTS_SUCCESS,
       payload: result.data,
     });
   } catch (err) {
     console.error(err.response.data);
     yield put({
-      type: LOAD_POSTS_FAILURE,
+      type: LOAD_USER_POSTS_FAILURE,
+      payload: err.response.data,
+    });
+  }
+}
+
+function loadHashtagPostsAPI(data: {
+  Hashtag: string;
+  lastId: number | undefined;
+}) {
+  console.log("data", data);
+  return axios.get(
+    `/hashtag/${encodeURIComponent(data.Hashtag)}?lastId=${data.lastId || 0}`
+  );
+}
+
+function* loadHashtagPostsSaga(
+  action: ReturnType<typeof loadHashtagPostsAction.request>
+) {
+  try {
+    const result = yield call(loadHashtagPostsAPI, action.payload);
+    yield put({
+      type: LOAD_HASHTAG_POSTS_SUCCESS,
+      payload: result.data,
+    });
+  } catch (err) {
+    yield put({
+      type: LOAD_HASHTAG_POSTS_FAILURE,
       payload: err.response.data,
     });
   }
@@ -251,7 +269,7 @@ function* uploadImageSaga(action: ReturnType<typeof uploadImage.request>) {
       payload: result.data,
     });
   } catch (err) {
-    console.error(err.response.data);
+    console.error("에러", err.response.data);
     yield put({
       type: UPLOAD_IMAGES_FAILURE,
       payload: err.response.data,
@@ -316,4 +334,5 @@ export default function* postSaga() {
   yield takeLatest(REMOVE_IMAGE_REQUEST, removeImageSaga);
   yield takeLatest(LOAD_POST_REQUEST, loadPostSaga);
   yield takeLatest(LOAD_USER_POSTS_REQUEST, loadUserPostsSaga);
+  yield takeLatest(LOAD_HASHTAG_POSTS_REQUEST, loadHashtagPostsSaga);
 }

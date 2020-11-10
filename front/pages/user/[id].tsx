@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Avatar, Card } from "antd";
 import { END } from "redux-saga";
@@ -30,11 +30,11 @@ const User = () => {
         document.documentElement.scrollHeight - 300
       ) {
         if (hasMorePosts && !loadPostsLoading) {
-          if (!id) return;
+          const lastId = mainPosts[mainPosts.length - 1].id;
           dispatch(
             loadUserPostsAction.request({
               UserId: Number(id),
-              lastId: mainPosts[mainPosts.length - 1]?.id,
+              lastId,
             })
           );
         }
@@ -44,7 +44,7 @@ const User = () => {
     return () => {
       window.removeEventListener("scroll", onScroll);
     };
-  }, [mainPosts.length, hasMorePosts, id]);
+  }, [mainPosts, hasMorePosts, id, loadPostsLoading]);
 
   return (
     <AppLayout>
@@ -98,6 +98,30 @@ const User = () => {
   );
 };
 
+/* export async function getStaticPaths() {
+  return {
+    paths: [
+      { params: { id: "1" } },
+      { params: { id: "2" } },
+      { params: { id: "3" } },
+    ],
+    fallback: false,
+  };
+}
+
+export const getStaticProps = wrapper.getStaticProps(async (context) => {
+  const id = context.params?.id as string;
+
+  context.store.dispatch(loadMyInfoAction.request());
+  context.store.dispatch(loadUserAction.request({ UserId: Number(id) }));
+  context.store.dispatch(
+    loadUserPostsAction.request({ UserId: Number(id), lastId: undefined })
+  );
+  context.store.dispatch(END);
+  await context.store.sagaTask.toPromise();
+  return { props: {} };
+});
+ */
 export const getServerSideProps = wrapper.getServerSideProps(
   async (context) => {
     const cookie = context.req ? context.req.headers.cookie : "";
@@ -113,7 +137,6 @@ export const getServerSideProps = wrapper.getServerSideProps(
     );
     context.store.dispatch(END);
     await context.store.sagaTask.toPromise();
-    console.log("getState", context.store.getState().post.mainPosts);
     return { props: {} };
   }
 );

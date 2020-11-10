@@ -1,19 +1,6 @@
 import produce from "immer";
-import {
-  ActionType,
-  createAction,
-  createAsyncAction,
-  createReducer,
-} from "typesafe-actions";
-import {
-  Comment,
-  CommentParam,
-  LikeData,
-  Post,
-  PostParam,
-} from "../interface/post";
-import shortId from "shortid";
-import faker from "faker";
+import { ActionType, createAsyncAction, createReducer } from "typesafe-actions";
+import { Comment, CommentParam, LikeData, Post } from "../interface/post";
 
 export interface PostState {
   mainPosts: Post[]; // 메인에 보여질 포스트내용
@@ -160,6 +147,16 @@ export const loadUserPostsAction = createAsyncAction(
   LOAD_USER_POSTS_FAILURE
 )<{ UserId: number; lastId: number | undefined }, Post[], Error>();
 
+export const LOAD_HASHTAG_POSTS_REQUEST = "LOAD_HASHTAG_POSTS_REQUEST";
+export const LOAD_HASHTAG_POSTS_SUCCESS = "LOAD_HASHTAG_POSTS_SUCCESS";
+export const LOAD_HASHTAG_POSTS_FAILURE = "LOAD_HASHTAG_POSTS_FAILURE";
+
+export const loadHashtagPostsAction = createAsyncAction(
+  LOAD_HASHTAG_POSTS_REQUEST,
+  LOAD_HASHTAG_POSTS_SUCCESS,
+  LOAD_HASHTAG_POSTS_FAILURE
+)<{ Hashtag: string; lastId: number | undefined }, Post[], Error>();
+
 export const UPLOAD_IMAGES_REQUEST = "UPLOAD_IMAGES_REQUEST";
 export const UPLOAD_IMAGES_SUCCESS = "UPLOAD_IMAGES_SUCCESS";
 export const UPLOAD_IMAGES_FAILURE = "UPLOAD_IMAGES_FAILURE";
@@ -201,6 +198,7 @@ type PostAction = ActionType<
   | typeof retweetPost
   | typeof loadPost
   | typeof loadUserPostsAction
+  | typeof loadHashtagPostsAction
 >;
 
 const post = createReducer<PostState, PostAction>(initialState, {
@@ -398,6 +396,23 @@ const post = createReducer<PostState, PostAction>(initialState, {
       draft.hasMorePosts = action.payload.length === 10;
     }),
   [LOAD_USER_POSTS_FAILURE]: (state, action) =>
+    produce(state, (draft) => {
+      draft.loadPostsLoading = false;
+      draft.loadPostsError = action.payload;
+    }),
+  [LOAD_HASHTAG_POSTS_REQUEST]: (state) =>
+    produce(state, (draft) => {
+      draft.loadPostsDone = false;
+      draft.loadPostsLoading = true;
+    }),
+  [LOAD_HASHTAG_POSTS_SUCCESS]: (state, action) =>
+    produce(state, (draft) => {
+      draft.loadPostsLoading = false;
+      draft.loadPostsDone = true;
+      draft.mainPosts.push(...action.payload);
+      draft.hasMorePosts = action.payload.length === 10;
+    }),
+  [LOAD_HASHTAG_POSTS_FAILURE]: (state, action) =>
     produce(state, (draft) => {
       draft.loadPostsLoading = false;
       draft.loadPostsError = action.payload;

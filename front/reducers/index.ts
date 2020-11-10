@@ -10,6 +10,8 @@ type State = {
 
 const rootReducer = (state: State | undefined, action: AnyAction): State => {
   switch (action.type) {
+    //ssr 액션
+    // 기존 store의 데이터를 덮는다.
     case HYDRATE:
       console.log(action);
       console.log(action.payload);
