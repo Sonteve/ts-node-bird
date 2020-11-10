@@ -11,7 +11,7 @@ const { Op } = require("sequelize");
 router.get("/", async (req, res, next) => {
   // GET /user
   try {
-    console.log(req.headers);
+    /* console.log(req.headers); */
     if (req.user) {
       const fullUserWithoutPassword = await User.findOne({
         where: { id: req.user.id },
@@ -280,56 +280,63 @@ router.get("/:userId", async (req, res, next) => {
   }
 });
 
-router.get("/:userId/post", async (req, res, next) => {
+router.get("/:id/posts", async (req, res, next) => {
+  // GET /user/1/posts
   try {
-    const user = await User.findOne({
-      where: { id: req.params.userId },
-    });
-
-    if (!user) {
-      return res.send(403).send("없는 유저입니다.");
+    const user = await User.findOne({ where: { id: req.params.id } });
+    if (user) {
+      const where = {};
+      if (parseInt(req.query.lastId, 10)) {
+        // 초기 로딩이 아닐 때
+        where.id = { [Op.lt]: parseInt(req.query.lastId, 10) };
+      } // 21 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1
+      const posts = await user.getPosts({
+        where,
+        limit: 10,
+        order: [["createdAt", "DESC"]],
+        include: [
+          {
+            model: Image,
+          },
+          {
+            model: Comment,
+            include: [
+              {
+                model: User,
+                attributes: ["id", "nickname"],
+              },
+            ],
+          },
+          {
+            model: User,
+            attributes: ["id", "nickname"],
+          },
+          {
+            model: User,
+            through: "Like",
+            as: "Likers",
+            attributes: ["id"],
+          },
+          {
+            model: Post,
+            as: "Retweet",
+            include: [
+              {
+                model: User,
+                attributes: ["id", "nickname"],
+              },
+              {
+                model: Image,
+              },
+            ],
+          },
+        ],
+      });
+      console.log(posts);
+      res.status(200).json(posts);
+    } else {
+      res.status(404).send("존재하지 않는 사용자입니다.");
     }
-    const where = {};
-    if (parseInt(req.query.lastId, 10)) {
-      where.id = { [Op.lt]: parseInt(req.query.lastId, 10) };
-    }
-    const posts = await Post.findAll({
-      where: { UserId: user.id },
-      limit: 10,
-      order: [
-        ["createdAt", "DESC"],
-        [Comment, "createdAt", "DESC"],
-      ],
-      include: [
-        {
-          // 게시글의 이미지
-          model: Image,
-        },
-        {
-          // 게시글의 작성자
-          model: Comment,
-          include: [
-            {
-              // 게시글 작성자
-              model: User,
-              attributes: ["id", "nickname"],
-            },
-          ],
-        },
-        {
-          // 글 작성자 정보
-          model: User,
-          attributes: ["id", "nickname"],
-        },
-        {
-          // 좋아요 누른 사람
-          model: User,
-          as: "Likers",
-          attributes: ["id"],
-        },
-      ],
-    });
-    res.status(200).json(posts);
   } catch (error) {
     console.error(error);
     next(error);
