@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@ant-design/icons": "^4.2.2",
+    "@next/bundle-analyzer": "^10.0.1",
     "@types/faker": "^5.1.4",
     "@types/next-redux-saga": "^3.0.2",
     "@types/react-lazyload": "^3.0.0",
