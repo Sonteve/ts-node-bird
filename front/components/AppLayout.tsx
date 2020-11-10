@@ -6,7 +6,7 @@ import React, {
   useState,
 } from "react";
 import Link from "next/link";
-import { createGlobalStyle } from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { Menu, Input, Row, Col } from "antd";
 import LoginForm from "./LoginForm";
 import UserProfile from "./UserProfile";
@@ -34,6 +34,8 @@ const Global = createGlobalStyle`
   }
 `;
 
+const StyledSearchInput = styled(Input.Search)``;
+
 const AppLayout = ({ children }: Props) => {
   const [searchInput, onChangeSearchInput] = useInput("");
   const { me } = useSelector(({ user }: RootState) => user);
@@ -55,18 +57,13 @@ const AppLayout = ({ children }: Props) => {
           </Link>
         </Menu.Item>
         <Menu.Item>
-          <Input.Search
+          <StyledSearchInput
             enterButton
             style={{ verticalAlign: "middle" }}
             value={searchInput}
             onChange={onChangeSearchInput}
             onSearch={onSearch}
           />
-        </Menu.Item>
-        <Menu.Item>
-          <Link href="/signup">
-            <a>회원가입</a>
-          </Link>
         </Menu.Item>
       </Menu>
       {/* xs(모바일) => sm(태블릿) => md(pc) ,  gutter : column 사이의 간격*/}

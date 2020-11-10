@@ -23,6 +23,8 @@ import {
 } from "../reducers/post";
 import FollowButton from "./FollowButton";
 import Link from "next/link";
+import moment from "moment";
+moment.locale("ko");
 
 interface Props {
   post: Post;
@@ -108,6 +110,11 @@ const PostCard = ({ post }: Props) => {
               )
             }
           >
+            <div style={{ float: "right" }}>
+              {/* {moment(post.createdAt).format("YYYY-MM-DD")} */}
+              {/*  from now */}
+              {moment(post.createdAt, "YYYYMMDD").fromNow()}
+            </div>
             <Card.Meta
               avatar={
                 <Link href={`/user/${post.Retweet.User.id}`}>
@@ -121,17 +128,23 @@ const PostCard = ({ post }: Props) => {
             />
           </Card>
         ) : (
-          <Card.Meta
-            avatar={
-              <Link href={`/user/${post.UserId}`}>
-                <a>
-                  <Avatar>{post.User.nickname[0]}</Avatar>
-                </a>
-              </Link>
-            }
-            title={post.User.nickname}
-            description={<PostCardContent postData={post.content} />}
-          />
+          <>
+            <div style={{ float: "right" }}>
+              {/* {dayjs(post.createdAt).format("YYYY-MM-DD")} */}
+              {moment(post.createdAt, "YYYYMMDD").fromNow()}
+            </div>
+            <Card.Meta
+              avatar={
+                <Link href={`/user/${post.UserId}`}>
+                  <a>
+                    <Avatar>{post.User.nickname[0]}</Avatar>
+                  </a>
+                </Link>
+              }
+              title={post.User.nickname}
+              description={<PostCardContent postData={post.content} />}
+            />
+          </>
         )}
 
         <Button></Button>
