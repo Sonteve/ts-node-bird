@@ -13,7 +13,7 @@ const App = ({ Component }: Props) => {
     <>
       <Head>
         <meta charSet="utf-8" />
-        <title>NodeBird</title>
+        <title>0228</title>
       </Head>
       <Component />
     </>

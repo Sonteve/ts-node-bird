@@ -33,13 +33,10 @@ const Post = () => {
                 content={
                   singlePost.Images[0]
                     ? singlePost.Images[0].src
-                    : "https://nodebird.com/favicon.ico"
+                    : "https://0228.kr/favicon.ico"
                 }
               />
-              <meta
-                property="og:url"
-                content={`http://sonteve.kr/post/${id}`}
-              />
+              <meta property="og:url" content={`http://0228.kr/post/${id}`} />
             </Head>
             <PostCard post={singlePost} />
           </>
