@@ -60,6 +60,9 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use("/", (req, res) => {
+  res.status(200).send(`<h1>express start</h1>`);
+});
 app.use("/post", postRouter);
 app.use("/user", userRouter);
 app.use("/posts", postsRouter);
@@ -72,5 +75,5 @@ app.use((err,req,res,next) => {})
 */
 
 app.listen(3060, () => {
-  console.log("3065포트에서 대기중");
+  console.log("3060포트에서 대기중");
 });
