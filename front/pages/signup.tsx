@@ -105,6 +105,7 @@ const Signup = () => {
             <label htmlFor="user-password">비밀번호</label>
             <Input
               name="user-password"
+              type="password"
               value={password}
               required
               onChange={onChangePassword}
@@ -114,6 +115,7 @@ const Signup = () => {
             <label htmlFor="user-password-check">비밀번호확인</label>
             <Input
               name="user-password-check"
+              type="password"
               value={passwordCheck}
               required
               onChange={onChangePasswordCheck}
