@@ -1,1 +1,1 @@
-export const host = "http://api.0228.kr";
+export const host = "https://api.0228.kr";
