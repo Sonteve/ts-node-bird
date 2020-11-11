@@ -18,7 +18,7 @@ const helmet = require("helmet");
 
 dotenv.config();
 const app = express();
-const PORT = process.env.NODE_ENV === "production" ? 80 : 3060;
+const PORT = process.env.NODE_ENV === "production" ? 3060 : 3060;
 //sequelize.sync() =>  Promise기반 함수
 db.sequelize
   .sync()
