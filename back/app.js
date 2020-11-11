@@ -18,6 +18,7 @@ const helmet = require("helmet");
 
 dotenv.config();
 const app = express();
+const PORT = process.env.NODE_ENV === "production" ? 80 : 3060;
 //sequelize.sync() =>  Promise기반 함수
 db.sequelize
   .sync()
@@ -87,6 +88,6 @@ app.use("/hashtag", hashtagRouter);
 app.use((err,req,res,next) => {})
 */
 
-app.listen(80, () => {
-  console.log("3060포트에서 대기중");
+app.listen(PORT, () => {
+  console.log(`${PORT}에 서버 실행중`);
 });
