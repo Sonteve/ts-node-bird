@@ -36,7 +36,7 @@ if (process.env.NODE_ENV === "production") {
   app.use(
     cors({
       // credentials : true일때는 모든도메인허용불가하므로 정확한 도메인을 적어주어야한다. 또는 origin: true 로 해준다.
-      origin: "https://sonteve.kr", // 모든 도메인으로 부터의 요청 허용 (도메인이 다르면 cors에러가남.) 프론트를 3060 백은 3065이기때문
+      origin: "https://0228.kr", // 모든 도메인으로 부터의 요청 허용 (도메인이 다르면 cors에러가남.) 프론트를 3060 백은 3065이기때문
       credentials: true, // 도메인이 다르면 쿠키가 전달이 안되는데 쿠키를 보내려면 credentails를 true로 해줘야함.
       // front에서는 axios요청의 세번째 인자로 { withCredentials: true} 를 넣어줘야 쿠키가 동봉된다.
     })
@@ -70,8 +70,8 @@ app.use(
     secret: process.env.COOKIE_SECRET,
     cookie: {
       httpOnly: true,
-      secure: false,
-      domain: process.env.NODE_ENV === "production" && ".sonteve.kr",
+      secure: process.env.NODE_ENV === "production",
+      domain: process.env.NODE_ENV === "production" && ".0228.kr",
     },
   })
 );
