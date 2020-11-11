@@ -90,6 +90,6 @@ app.use("/hashtag", hashtagRouter);
 app.use((err,req,res,next) => {})
 */
 
-app.listen(PORT, () => {
-  console.log(`${PORT}에 서버 실행중`);
+app.listen(3060, () => {
+  console.log(`3060에 서버 실행중`);
 });
