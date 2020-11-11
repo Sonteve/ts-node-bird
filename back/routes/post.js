@@ -242,7 +242,14 @@ router.post(
   async (req, res, next) => {
     console.log(req.files);
     // 서버 로컬에 이미지 파일 생성후 req.files에 담겨서 온다.
-    res.status(200).json(req.files.map((v) => /* v.filename */ v.location));
+    // s3적용시에는 s3에 이미지 업로드 된 후 req.files안에 location에 이미지 주소로 담겨온다.
+    res.status(200).json(
+      req.files.map(
+        (v) => /* v.filename */ v.location.replace(/\/original\//, "/thumb/")
+        // 이미지 주소에 original에 있으면 thumb로 바꿔서 보여줌
+        // 프론트에서는 원본이미지가 필요한경우 thumb/를 original/로 바꿔서 보여주면된다.
+      )
+    );
   }
 );
 
