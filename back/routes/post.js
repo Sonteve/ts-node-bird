@@ -5,6 +5,9 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const router = express.Router();
+const multerS3 = require("multer-s3");
+const AWS = require("aws-sdk");
+
 try {
   fs.accessSync("uploads");
 } catch (error) {
@@ -12,7 +15,26 @@ try {
   fs.mkdirSync("uploads");
 }
 
+AWS.config.update({
+  accessKeyId: process.env.S3_ACCESS_KEY_ID,
+  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+  region: "ap-northeast-2",
+});
+
+// localStorage에서 s3로 변경
 const upload = multer({
+  storage: multerS3({
+    s3: new AWS.S3(), // 권한 얻기
+    bucket: "node-bird-s3", // 버킷이름
+    key(req, file, cb) {
+      // 저장될 파일 이름 설정
+      cb(null, `original/${Date.now()}_${path.basename(file.originalname)}`);
+    },
+  }),
+  limits: { fileSize: 20 * 1024 * 1024 }, // 이미지 용량 설정
+});
+
+/* const upload = multer({
   storage: multer.diskStorage({
     //경로 설정
     destination(req, res, done) {
@@ -27,7 +49,7 @@ const upload = multer({
     },
   }),
   limits: { fileSize: 20 * 1024 * 1024 }, // 20MB
-});
+}); */
 
 router.post("/", isLoggedIn, upload.none(), async (req, res, next) => {
   try {
@@ -220,7 +242,7 @@ router.post(
   async (req, res, next) => {
     console.log(req.files);
     // 서버 로컬에 이미지 파일 생성후 req.files에 담겨서 온다.
-    res.status(200).json(req.files.map((v) => v.filename));
+    res.status(200).json(req.files.map((v) => /* v.filename */ v.location));
   }
 );
 
