@@ -1,4 +1,5 @@
-import produce from "immer";
+import produce, { enableES5 } from "immer";
+enableES5();
 import { ActionType, createAsyncAction, createReducer } from "typesafe-actions";
 import { Comment, CommentParam, LikeData, Post } from "../interface/post";
 

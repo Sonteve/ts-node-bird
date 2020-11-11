@@ -18,8 +18,6 @@ const FollowList = ({
   data,
   onClickMoreFollower,
   onClickMoreFollowing,
-  hasMoreFollower,
-  hasMoreFollowing,
 }: Props) => {
   const dispatch = useDispatch();
   const grid = useMemo(() => ({ gutter: 4, xs: 2, md: 3 }), []);
