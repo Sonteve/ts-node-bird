@@ -30,9 +30,10 @@ db.sequelize
 passportConfig();
 
 if (process.env.NODE_ENV === "production") {
+  app.enable("trust proxy");
   app.use(morgan("combined")); // 자세한 로그( 접속자의 ip도 나옴 )
   app.use(hpp());
-  app.use(helmet());
+  app.use(helmet({ contentSecurityPolicy: false }));
   app.use(
     cors({
       // credentials : true일때는 모든도메인허용불가하므로 정확한 도메인을 적어주어야한다. 또는 origin: true 로 해준다.
@@ -68,6 +69,7 @@ app.use(
     saveUninitialized: false,
     resave: false,
     secret: process.env.COOKIE_SECRET,
+    proxy: process.env.NODE_ENV === "production",
     cookie: {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
