@@ -2,23 +2,23 @@ const express = require("express");
 const cors = require("cors");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
-const postRouter = require("./routes/post");
-const userRouter = require("./routes/user");
-const postsRouter = require("./routes/posts");
-const hashtagRouter = require("./routes/hashtag");
-// models/index.js에서 model이 등록된 sequelize를 가져옴
-const db = require("./models/index.js");
 const passport = require("passport");
-const passportConfig = require("./passport");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
 const path = require("path");
 const hpp = require("hpp");
 const helmet = require("helmet");
 
+const postRouter = require("./routes/post");
+const userRouter = require("./routes/user");
+const postsRouter = require("./routes/posts");
+const hashtagRouter = require("./routes/hashtag");
+// models/index.js에서 model이 등록된 sequelize를 가져옴
+const db = require("./models/index.js");
+const passportConfig = require("./passport");
+
 dotenv.config();
 const app = express();
-const PORT = process.env.NODE_ENV === "production" ? 3060 : 3060;
 //sequelize.sync() =>  Promise기반 함수
 db.sequelize
   .sync()
