@@ -30,7 +30,7 @@ db.sequelize
 passportConfig();
 
 if (process.env.NODE_ENV === "production") {
-  app.enable("trust proxy");
+  app.enable("trust proxy", 1);
   app.use(morgan("combined")); // 자세한 로그( 접속자의 ip도 나옴 )
   app.use(hpp());
   app.use(helmet({ contentSecurityPolicy: false }));
