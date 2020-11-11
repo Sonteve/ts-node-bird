@@ -338,7 +338,7 @@ const post = createReducer<PostState, PostAction>(initialState, {
     }),
   [UPLOAD_IMAGES_SUCCESS]: (state, action) =>
     produce(state, (draft) => {
-      draft.imagePaths = action.payload;
+      draft.imagePaths.push(...action.payload);
       draft.uploadImagesLoading = false;
       draft.uploadImagesDone = true;
     }),
