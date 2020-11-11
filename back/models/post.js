@@ -12,8 +12,8 @@ module.exports = class Post extends Model {
         },
       },
       {
-        modelName: "Image",
-        tableName: "images", //안적어주면 자동으로 소문자 복수형
+        modelName: "Post",
+        tableName: "posts", //안적어주면 자동으로 소문자 복수형
         charset: "utf8mb4",
         collate: "utf8mb4_general_ci",
         sequelize,
