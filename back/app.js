@@ -70,6 +70,6 @@ app.use("/hashtag", hashtagRouter);
 app.use((err,req,res,next) => {})
 */
 
-app.listen(3060, () => {
+app.listen(80, () => {
   console.log("3060포트에서 대기중");
 });
