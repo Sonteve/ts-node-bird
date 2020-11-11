@@ -13,6 +13,8 @@ const passportConfig = require("./passport");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
 const path = require("path");
+const hpp = require("hpp");
+const helmet = require("helmet");
 
 dotenv.config();
 const app = express();
@@ -28,12 +30,14 @@ passportConfig();
 
 if (process.env.NODE_ENV === "production") {
   app.use(morgan("combined")); // 자세한 로그( 접속자의 ip도 나옴 )
+  app.use(hpp());
+  app.use(helmet());
 } else {
   app.use(morgan("dev")); // 개발모드에서만 로그 찍어줌 (디버깅 편함)
   app.use(
     cors({
       // credentials : true일때는 모든도메인허용불가하므로 정확한 도메인을 적어주어야한다. 또는 origin: true 로 해준다.
-      origin: true, // 모든 도메인으로 부터의 요청 허용 (도메인이 다르면 cors에러가남.) 프론트를 3060 백은 3065이기때문
+      origin: ["sonteve.kr", "ts-node-bird.vercel.app"], // 모든 도메인으로 부터의 요청 허용 (도메인이 다르면 cors에러가남.) 프론트를 3060 백은 3065이기때문
       credentials: true, // 도메인이 다르면 쿠키가 전달이 안되는데 쿠키를 보내려면 credentails를 true로 해줘야함.
       // front에서는 axios요청의 세번째 인자로 { withCredentials: true} 를 넣어줘야 쿠키가 동봉된다.
     })
